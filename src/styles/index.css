@@ -1,0 +1,35 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+/* Hide scrollbar but keep scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.example {
+  background-color: #6a8db3;
+}
+
+@keyframes dropdown {
+  0% {
+    opacity: 0;
+    transform: translateX(-12px) scale(0.96);
+  }
+  60% {
+    opacity: 1;
+    transform: translateX(2px) scale(1.02);
+  }
+  100% {
+    transform: translateX(0) scale(1);
+  }
+}
+
+.animate-dropdown {
+  animation: dropdown 0.18s ease-out;
+}
