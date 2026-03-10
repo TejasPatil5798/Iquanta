@@ -1,12 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { Sparkles } from "lucide-react";
+import { useBookmarks } from "../context/BookmarkContext";
 import { Package, Plug, Download, Bot } from "lucide-react";
+import { X } from "lucide-react";
 import {
   UserPlus,
   Building2,
   Handshake,
   Ticket,
   CheckSquare,
+  Bookmark,
 } from "lucide-react";
 import {
   Search,
@@ -17,7 +21,6 @@ import {
   HelpCircle,
   Settings,
   User,
-  Star,
   ChevronDown,
 } from "lucide-react";
 
@@ -32,6 +35,9 @@ import {
 
 export function TopNavbar() {
   const [openBreeze, setOpenBreeze] = useState(false);
+  const navigate = useNavigate();
+  const { bookmarks, removeBookmark } = useBookmarks();
+  const [bookmarkOpen, setBookmarkOpen] = useState(false);
   const [notifications] = useState([
     { id: 1, message: "New lead assigned: Rahul Sharma", time: "5 min ago" },
     {
@@ -103,20 +109,46 @@ export function TopNavbar() {
 
         {/* Bookmarks */}
         <div className="relative group">
-          <DropdownMenu>
+          <DropdownMenu open={bookmarkOpen} onOpenChange={setBookmarkOpen}>
             <DropdownMenuTrigger asChild>
               <button className="p-2 text-gray-300 hover:text-white hover:bg-[#2B3E50] rounded-lg">
-                <Star className="w-5 h-5" />
+                <Bookmark className="w-5 h-5" />
               </button>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>Bookmarks</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Dashboard</DropdownMenuItem>
-              <DropdownMenuItem>Contacts</DropdownMenuItem>
-              <DropdownMenuItem>Deals</DropdownMenuItem>
-              <DropdownMenuItem>Tasks</DropdownMenuItem>
+              {bookmarks.length === 0 && (
+                <DropdownMenuItem disabled>No bookmarks</DropdownMenuItem>
+              )}
+
+              {bookmarks.map((b) => (
+                <div
+                  key={b.path}
+                  className="flex items-center justify-between px-2 py-2 hover:bg-gray-100 cursor-pointer group"
+                >
+                  <span
+                    className="cursor-pointer flex-1"
+                    onClick={() => {
+                      navigate(b.path);
+                      setBookmarkOpen(false);
+                    }}
+                  >
+                    {b.name}
+                  </span>
+
+                  <X
+                    size={14}
+                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 cursor-pointer transition"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      removeBookmark(b.path);
+                    }}
+                  />
+                </div>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -136,7 +168,6 @@ export function TopNavbar() {
           </span>
         </div>
 
-        {/* Marketplace */}
         {/* Marketplace */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -184,7 +215,10 @@ export function TopNavbar() {
 
         {/* Settings */}
         <div className="relative group">
-          <button className="p-2 text-gray-300 hover:text-white hover:bg-[#2B3E50] rounded-lg">
+          <button
+            onClick={() => navigate("/settings")}
+            className="p-2 text-gray-300 hover:text-white hover:bg-[#2B3E50] rounded-lg"
+          >
             <Settings className="w-5 h-5" />
           </button>
 

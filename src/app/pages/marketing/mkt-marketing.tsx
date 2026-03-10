@@ -1,11 +1,11 @@
-import { Card } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
-import { Progress } from '../components/ui/progress';
-import { mockCampaigns } from '../data/mockData';
+import { Card } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Progress } from '../../components/ui/progress';
+import { mockCampaigns } from '../../data/mockData';
 import { Plus, TrendingUp, DollarSign, Users, Target } from 'lucide-react';
 
-export function Marketing() {
+export function MktMarketing() {
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       'Active': 'bg-green-100 text-green-700',

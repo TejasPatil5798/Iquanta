@@ -1,6 +1,6 @@
-@import './fonts.css';
-@import './tailwind.css';
-@import './theme.css';
+@import "./fonts.css";
+@import "./tailwind.css";
+@import "./theme.css";
 
 /* Hide scrollbar but keep scrolling */
 .no-scrollbar::-webkit-scrollbar {
@@ -28,8 +28,4 @@
   100% {
     transform: translateX(0) scale(1);
   }
-}
-
-.animate-dropdown {
-  animation: dropdown 0.18s ease-out;
 }
