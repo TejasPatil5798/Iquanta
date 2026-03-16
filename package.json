@@ -39,13 +39,19 @@
     "@radix-ui/react-toggle": "1.1.2",
     "@radix-ui/react-toggle-group": "1.1.2",
     "@radix-ui/react-tooltip": "1.1.8",
+    "axios": "^1.13.6",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "cmdk": "^1.1.1",
+    "cors": "^2.8.6",
     "date-fns": "3.6.0",
+    "dotenv": "^17.3.1",
     "embla-carousel-react": "8.6.0",
+    "express": "^5.2.1",
     "input-otp": "1.4.2",
     "lucide-react": "0.487.0",
+    "mongodb": "^7.1.0",
+    "mongoose": "^9.3.0",
     "motion": "12.23.24",
     "next-themes": "0.4.6",
     "react-day-picker": "8.10.1",
@@ -66,6 +72,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
     "@vitejs/plugin-react": "4.7.0",
+    "nodemon": "^3.1.14",
     "tailwindcss": "4.1.12",
     "vite": "6.3.5"
   },
@@ -85,5 +92,18 @@
     "overrides": {
       "vite": "6.3.5"
     }
-  }
+  },
+  "description": "This is a code bundle for SaaS CRM Web Application. The original project is available at https://www.figma.com/design/U19WRdM3x512jYD3lxjDdC/SaaS-CRM-Web-Application.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TejasPatil5798/Iquanta.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TejasPatil5798/Iquanta/issues"
+  },
+  "homepage": "https://github.com/TejasPatil5798/Iquanta#readme"
 }
