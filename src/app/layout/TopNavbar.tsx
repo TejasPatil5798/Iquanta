@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Sparkles } from "lucide-react";
 import { useBookmarks } from "../context/BookmarkContext";
+import { useAuth } from "../context/AuthContext";
 import { Package, Plug, Download, Bot } from "lucide-react";
 import { X } from "lucide-react";
 import {
@@ -37,6 +38,7 @@ export function TopNavbar() {
   const [openBreeze, setOpenBreeze] = useState(false);
   const navigate = useNavigate();
   const { bookmarks, removeBookmark } = useBookmarks();
+  const { user, logout } = useAuth();
   const [bookmarkOpen, setBookmarkOpen] = useState(false);
   const [notifications] = useState([
     { id: 1, message: "New lead assigned: Rahul Sharma", time: "5 min ago" },
@@ -281,8 +283,8 @@ export function TopNavbar() {
               </div>
 
               <div className="text-left hidden md:block">
-                <p className="text-sm font-medium text-white">Admin User</p>
-                <p className="text-xs text-gray-300">admin@iquanta.com</p>
+                <p className="text-sm font-medium text-white">{user?.name || 'User'}</p>
+                <p className="text-xs text-gray-300">{user?.email || 'user@example.com'}</p>
               </div>
 
               <ChevronDown className="w-4 h-4 text-gray-300" />
@@ -296,7 +298,12 @@ export function TopNavbar() {
             <DropdownMenuItem>Preferences</DropdownMenuItem>
             <DropdownMenuItem>Help & Support</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600">Logout</DropdownMenuItem>
+            <DropdownMenuItem className="text-red-600" onClick={() => {
+              logout();
+              navigate('/login');
+            }}>
+              Logout
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

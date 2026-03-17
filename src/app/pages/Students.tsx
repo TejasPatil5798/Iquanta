@@ -15,7 +15,7 @@ import {
 
 export function Students() {
   const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
+    const colors: Record<string, string> =  {
       'Active': 'bg-green-100 text-green-700',
       'Inactive': 'bg-gray-100 text-gray-700',
       'Graduated': 'bg-blue-100 text-blue-700',
