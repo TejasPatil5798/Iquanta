@@ -37,7 +37,7 @@ export function MktEvents() {
   return (
     <div className="w-full min-h-screen bg-[#f6f7f9] overflow-hidden">
       {/* Top Section */}
-      <div className="px-4 md:px-6 lg:px-8 py-4">
+      <div className="lg:px-8 py-4">
         <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
 
           {/* Left Header */}
@@ -73,7 +73,7 @@ export function MktEvents() {
       </div>
 
       {/* Main Card */}
-      <div className="mx-4 md:mx-6 lg:mx-8 bg-white rounded-xl border p-4 md:p-6">
+      <div className="bg-white rounded-xl border p- md:p-6">
 
         {/* Toolbar */}
         <div className="flex flex-col gap-4">

@@ -12,8 +12,6 @@ import {
   Ticket,
   CheckSquare,
   Bookmark,
-} from "lucide-react";
-import {
   Search,
   Bell,
   Plus,
@@ -24,7 +22,6 @@ import {
   User,
   ChevronDown,
 } from "lucide-react";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,7 +52,7 @@ export function TopNavbar() {
   ]);
 
   return (
-    <div className="h-16 bg-[#33475B] border-b border-[#2B3E50] flex items-center justify-between px-6">
+    <div className="h-16 bg-[#33475B] border-b border-[#2B3E50] flex items-center justify-between px-6 sticky top-0 z-50">
       {/* Search */}
       <div className="flex-1 max-w-xl">
         <div className="relative">

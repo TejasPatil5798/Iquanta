@@ -416,14 +416,9 @@ export function Sidebar({ expanded, setExpanded }: SidebarProps) {
                     {menu.name}
                   </Link>
 
-                  <Bookmark
-                    size={16}
-                    fill={isBookmarked ? "currentColor" : "none"}
-                    className={`cursor-pointer ${
-                      isBookmarked
-                        ? "text-yellow-400"
-                        : "opacity-0 group-hover:opacity-100 hover:text-yellow-400"
-                    }`}
+                  <button
+                    type="button"
+                    className="ml-2 p-1 rounded hover:bg-slate-600 transition"
                     onClick={(e) => {
                       e.stopPropagation();
 
@@ -436,7 +431,17 @@ export function Sidebar({ expanded, setExpanded }: SidebarProps) {
                         });
                       }
                     }}
-                  />
+                  >
+                    <Bookmark
+                      size={16}
+                      fill={isBookmarked ? "currentColor" : "none"}
+                      className={`${
+                        isBookmarked
+                          ? "text-yellow-400"
+                          : "text-gray-300 opacity-0 group-hover:opacity-100 hover:text-yellow-400"
+                      }`}
+                    />
+                  </button>
                 </li>
               );
             })}

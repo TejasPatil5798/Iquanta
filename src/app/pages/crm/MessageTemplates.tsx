@@ -27,7 +27,7 @@ export function MessageTemplates() {
           </h2>
 
           <div style={styles.listItem}>
-            <span style={styles.icon}>→</span>
+            <span style={styles.icon}>›</span>
             <p>
               <b>Create your own templates</b> or choose from a library written
               by HubSpot experts
@@ -35,7 +35,7 @@ export function MessageTemplates() {
           </div>
 
           <div style={styles.listItem}>
-            <span style={styles.icon}>→</span>
+            <span style={styles.icon}>›</span>
             <p>
               <b>Send more emails in less time</b>, and build on your past
               successes
@@ -43,7 +43,7 @@ export function MessageTemplates() {
           </div>
 
           <div style={styles.listItem}>
-            <span style={styles.icon}>→</span>
+            <span style={styles.icon}>›</span>
             <p>
               <b>Engage your recipients</b> with personalization, relevant
               documents, and meeting links
@@ -146,10 +146,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: "50%",
     width: "26px",
     height: "26px",
+    minWidth: "26px",
+    minHeight: "26px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     fontSize: "14px",
+    fontWeight: "600",
+    lineHeight: "1",
+    flexShrink: 0,
   },
 
   image: {
