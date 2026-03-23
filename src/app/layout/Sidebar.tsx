@@ -23,6 +23,7 @@ import {
   Sparkles,
   Code,
   Bookmark,
+  FileText,
 } from "lucide-react";
 
 interface SubMenuItem {
@@ -83,7 +84,7 @@ const navItems: NavItem[] = [
   {
     name: "Content",
     path: "/content",
-    icon: <Database className="w-5 h-5" />,
+    icon: <FileText className="w-5 h-5" />,
     submenu: [
       { name: "Website Pages", path: "/content/website-pages" },
       { name: "Landing Pages", path: "/content/landing-pages" },
@@ -99,7 +100,7 @@ const navItems: NavItem[] = [
       { name: "Brand", path: "/content/brand" },
     ],
   },
-
+ 
   {
     name: "Sales",
     path: "/sales",

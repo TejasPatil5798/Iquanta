@@ -35,11 +35,10 @@ const integrations = [
 
 export function MktEvents() {
   return (
-    <div className="w-full min-h-screen bg-[#f6f7f9] overflow-hidden">
+    <div className="min-h-screen bg-[#f6f7f9] w-full max-w-full overflow-x-hidden">
       {/* Top Section */}
       <div className="lg:px-8 py-4">
         <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-
           {/* Left Header */}
           <div className="flex items-center gap-3 min-w-0 flex-wrap">
             <Button variant="outline" className="bg-white">
@@ -73,13 +72,10 @@ export function MktEvents() {
       </div>
 
       {/* Main Card */}
-      <div className="bg-white rounded-xl border p- md:p-6">
-
+      <div className="bg-white rounded-xl border p-4 md:p-6 w-full max-w-full overflow-x-hidden">
         {/* Toolbar */}
         <div className="flex flex-col gap-4">
-
           <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-
             {/* Search */}
             <div className="relative w-full xl:max-w-md">
               <Input placeholder="Search" className="pl-10 rounded-full" />
@@ -124,38 +120,30 @@ export function MktEvents() {
 
         {/* Integration Cards */}
         <div className="mt-8 border rounded-xl p-4 md:p-6 overflow-hidden">
-
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-4xl font-semibold leading-tight">
               Sync your marketing events with
             </h2>
 
-            <button className="text-teal-700 font-medium">
-              See more
-            </button>
+            <button className="text-teal-700 font-medium">See more</button>
           </div>
 
-          <div className="overflow-x-auto">
-            <div className="flex gap-6 min-w-max">
-
+          <div className="w-full overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {integrations.map((item, i) => (
                 <div
                   key={i}
-                  className="w-[320px] min-w-[320px] border rounded-xl p-6 bg-white"
+                  className="w-full border rounded-xl p-6 bg-white"
                 >
                   <div className="w-14 h-14 bg-blue-100 rounded-md mb-6"></div>
 
-                  <h3 className="text-2xl font-semibold mb-2">
-                    {item.name}
-                  </h3>
+                  <h3 className="text-2xl font-semibold mb-2">{item.name}</h3>
 
                   <p className="text-gray-500 mb-4">
                     By HubSpot &nbsp; {item.installs}
                   </p>
 
-                  <p className="text-gray-700 leading-7">
-                    {item.desc}
-                  </p>
+                  <p className="text-gray-700 leading-7">{item.desc}</p>
 
                   <div className="mt-6">
                     <span className="bg-gray-100 px-3 py-1 rounded-full text-sm">
@@ -170,7 +158,6 @@ export function MktEvents() {
 
         {/* Pagination */}
         <div className="flex flex-col md:flex-row justify-center items-center gap-6 mt-8">
-
           <div className="flex items-center gap-6">
             <button className="flex items-center gap-2 text-gray-500">
               <ChevronLeft className="w-4 h-4" />
@@ -183,9 +170,7 @@ export function MktEvents() {
             </button>
           </div>
 
-          <button className="font-medium">
-            25 per page
-          </button>
+          <button className="font-medium">25 per page</button>
         </div>
       </div>
     </div>
