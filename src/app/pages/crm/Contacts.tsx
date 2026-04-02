@@ -51,9 +51,9 @@ export function Contacts() {
   ];
  
   return (
-    <div className="w-full min-h-screen bg-white overflow-x-hidden">
+    <div className="h-full w-full max-w-full bg-white overflow-x-hidden">
       {/* Top bar: Contacts selector, all contacts badge, add button */}
-      <div className="border-b px-4 sm:px-6 py-2 flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 border-b px-4 py-2 sm:px-6">
         <Button variant="outline" className="bg-white border-gray-300 text-gray-900 gap-1 h-8">
           <Users className="w-3 h-3" />
           <span className="text-xs font-medium">Contacts</span>
@@ -81,9 +81,9 @@ export function Contacts() {
           <Plus className="w-3 h-3" />
         </Button>
  
-        <div className="flex-1"></div>
- 
-        <div className="flex items-center gap-1">
+        <div className="min-w-0 flex-1"></div>
+
+        <div className="flex flex-wrap items-center gap-1">
           <Button size="icon" variant="outline" className="bg-white border-gray-300 h-8 w-8">
             <Ellipsis className="w-3 h-3" />
           </Button>
@@ -96,8 +96,8 @@ export function Contacts() {
  
       {/* Search and toolbar row */}
       <div className="border-b px-4 sm:px-6 py-2">
-        <div className="flex flex-wrap items-center gap-2 mb-2">
-          <div className="relative flex-1 min-w-[200px] max-w-xs">
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <div className="relative min-w-0 flex-1 basis-56 max-w-xs">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Search"
@@ -166,9 +166,9 @@ export function Contacts() {
           </button>
         </div>
       </div>
- 
+
       {/* Table container - reduced margins and padding for better horizontal space */}
-      <div className="my-4 border border-gray-300 rounded-lg overflow-x-auto bg-white">
+      <div className="mx-4 my-4 max-w-full overflow-x-auto rounded-lg border border-gray-300 bg-white sm:mx-6">
         <div className="min-w-[1000px]">
           <table className="w-full border-collapse">
             <thead className="bg-gray-50">
@@ -310,9 +310,9 @@ export function Contacts() {
           </table>
         </div>
       </div>
- 
+
       {/* Pagination */}
-      <div className="border-t px-4 sm:px-6 py-4 flex items-center justify-center gap-4">
+      <div className="flex flex-wrap items-center justify-center gap-4 border-t px-4 py-4 sm:px-6">
         <Button variant="outline" size="sm" className="bg-white border-gray-300 text-gray-700">
           <ChevronLeft className="w-4 h-4 mr-1" />
           Prev

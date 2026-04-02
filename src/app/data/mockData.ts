@@ -205,42 +205,6 @@ export const mockLeads: Lead[] = [
   }
 ];
 
-export const mockStudents: Student[] = [
-  {
-    id: 'S001',
-    name: 'Rohan Desai',
-    email: 'rohan.desai@email.com',
-    phone: '+91 98765 43220',
-    program: 'MBA',
-    status: 'Active',
-    enrollmentDate: '2025-08-15',
-    counselor: 'Priya Patel',
-    documents: 8
-  },
-  {
-    id: 'S002',
-    name: 'Priya Sinha',
-    email: 'priya.sinha@email.com',
-    phone: '+91 98765 43221',
-    program: 'MS CS',
-    status: 'Active',
-    enrollmentDate: '2025-08-20',
-    counselor: 'Arjun Singh',
-    documents: 7
-  },
-  {
-    id: 'S003',
-    name: 'Aditya Joshi',
-    email: 'aditya.joshi@email.com',
-    phone: '+91 98765 43222',
-    program: 'BBA',
-    status: 'Active',
-    enrollmentDate: '2025-09-01',
-    counselor: 'Neha Kumar',
-    documents: 6
-  }
-];
-
 export const mockApplications: Application[] = [
   {
     id: 'A001',

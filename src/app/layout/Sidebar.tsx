@@ -1,6 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import { useBookmarks } from "../context/BookmarkContext";
+import { useAuth } from "../context/AuthContext";
+import { type AppRole, getRoleLabel, hasRoleAccess } from "../lib/portalRoles";
 import {
   LayoutDashboard,
   Users,
@@ -8,6 +10,7 @@ import {
   MessageSquare,
   CheckSquare,
   BarChart3,
+  ClipboardCheck,
   Megaphone,
   Database,
   Bot,
@@ -26,16 +29,21 @@ import {
   FileText,
 } from "lucide-react";
 
+const VIEWPORT_MARGIN = 60;
+const TOPBAR_HEIGHT = 50;
+
 interface SubMenuItem {
   name: string;
   path: string;
+  allowedRoles?: AppRole[];
 }
 
 interface NavItem {
   name: string;
   path: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   submenu?: SubMenuItem[];
+  allowedRoles?: AppRole[];
 }
 
 const navItems: NavItem[] = [
@@ -49,6 +57,7 @@ const navItems: NavItem[] = [
     name: "CRM",
     path: "/crm",
     icon: <Database className="w-5 h-5" />,
+    allowedRoles: ["admin"],
     submenu: [
       { name: "Contacts", path: "/crm/contacts" },
       { name: "Companies", path: "/crm/companies" },
@@ -69,6 +78,7 @@ const navItems: NavItem[] = [
     name: "Marketing",
     path: "/marketing",
     icon: <Megaphone className="w-5 h-5" />,
+    allowedRoles: ["admin", "teacher", "manager"],
     submenu: [
       { name: "Campaigns", path: "/marketing/campaigns" },
       { name: "Email", path: "/marketing/email" },
@@ -85,6 +95,7 @@ const navItems: NavItem[] = [
     name: "Content",
     path: "/content",
     icon: <FileText className="w-5 h-5" />,
+    allowedRoles: ["admin", "teacher"],
     submenu: [
       { name: "Website Pages", path: "/content/website-pages" },
       { name: "Landing Pages", path: "/content/landing-pages" },
@@ -105,6 +116,7 @@ const navItems: NavItem[] = [
     name: "Sales",
     path: "/sales",
     icon: <BarChart3 className="w-5 h-5" />,
+    allowedRoles: ["admin"],
     submenu: [
       { name: "Sales Workspace", path: "/sales/workspace" },
       { name: "Target Accounts", path: "/sales/target-accounts" },
@@ -123,6 +135,7 @@ const navItems: NavItem[] = [
     name: "Commerce",
     path: "/commerce",
     icon: <DollarSign className="w-5 h-5" />,
+    allowedRoles: ["admin"],
     submenu: [
       { name: "Overview", path: "/commerce/overview" },
       { name: "Quotes", path: "/commerce/quotes" },
@@ -139,6 +152,7 @@ const navItems: NavItem[] = [
     name: "Service",
     path: "/service",
     icon: <LifeBuoy className="w-5 h-5" />,
+    allowedRoles: ["admin"],
     submenu: [
       { name: "Help desk", path: "/service/help-desk" },
       { name: "Customer Success", path: "/service/customer-success" },
@@ -155,6 +169,7 @@ const navItems: NavItem[] = [
     name: "Data Management",
     path: "/data-management",
     icon: <Server className="w-5 h-5" />,
+    allowedRoles: ["admin"],
     submenu: [
       { name: "Data Agent", path: "/data-management/data-agent" },
       { name: "Data Integration", path: "/data-management/data-integration" },
@@ -170,6 +185,7 @@ const navItems: NavItem[] = [
     name: "Automation",
     path: "/automation",
     icon: <Workflow className="w-5 h-5" />,
+    allowedRoles: ["admin"],
     submenu: [
       { name: "Overview", path: "/automation/overview" },
       { name: "Workflows", path: "/automation/workflows" },
@@ -180,6 +196,7 @@ const navItems: NavItem[] = [
     name: "Reporting",
     path: "/reporting",
     icon: <PieChart className="w-5 h-5" />,
+    allowedRoles: ["admin", "manager"],
     submenu: [
       { name: "Dashboards", path: "/reporting/dashboards" },
       { name: "Reports", path: "/reporting/reports" },
@@ -191,6 +208,7 @@ const navItems: NavItem[] = [
     name: "Breeze",
     path: "/breeze",
     icon: <Sparkles className="w-5 h-5" />,
+    allowedRoles: ["admin"],
     submenu: [
       { name: "Breeze Studio", path: "/breeze/studio" },
       { name: "Knowledge Vaults", path: "/breeze/knowledge-vaults" },
@@ -202,12 +220,14 @@ const navItems: NavItem[] = [
     name: "Development",
     path: "/development",
     icon: <Code className="w-5 h-5" />,
+    allowedRoles: ["admin"],
   },
 
   {
     name: "Leads",
     path: "/leads",
     icon: <Users className="w-5 h-5" />,
+    allowedRoles: ["admin", "user", "teacher", "manager"],
   },
 
   /* STUDENT MODULE */
@@ -215,6 +235,7 @@ const navItems: NavItem[] = [
     name: "Students",
     path: "/students",
     icon: <GraduationCap className="w-5 h-5" />,
+    allowedRoles: ["admin", "user", "manager", "student"],
     submenu: [
       { name: "Students", path: "/students" },
       { name: "Applications", path: "/students/applications" },
@@ -223,33 +244,45 @@ const navItems: NavItem[] = [
   },
 
   {
+    name: "Student Portal",
+    path: "/student-portal",
+    icon: <ClipboardCheck className="w-5 h-5" />,
+    allowedRoles: ["student"],
+  },
+
+  {
     name: "Communication",
     path: "/communication",
     icon: <MessageSquare className="w-5 h-5" />,
+    allowedRoles: ["admin", "user", "manager", "student"],
   },
 
   {
     name: "Tasks",
     path: "/tasks",
     icon: <CheckSquare className="w-5 h-5" />,
+    allowedRoles: ["admin", "user"],
   },
 
   {
     name: "Analytics",
     path: "/analytics",
     icon: <BarChart3 className="w-5 h-5" />,
+    allowedRoles: ["admin", "user", "teacher", "manager"],
   },
 
   {
     name: "AI Assistant",
     path: "/ai-assistant",
     icon: <Bot className="w-5 h-5" />,
+    allowedRoles: ["admin", "user", "manager"],
   },
 
   {
     name: "User Management",
     path: "/user-management",
     icon: <UserCog className="w-5 h-5" />,
+    allowedRoles: ["admin"],
   },
 
   {
@@ -267,11 +300,20 @@ export function Sidebar({ expanded, setExpanded }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { bookmarks, addBookmark, removeBookmark } = useBookmarks();
+  const { user } = useAuth();
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const [activeMenu, setActiveMenu] = useState<NavItem | null>(null);
-  const [menuPosition, setMenuPosition] = useState(0);
+  const [menuPosition, setMenuPosition] = useState(VIEWPORT_MARGIN);
+
+  const getMaxMenuHeight = () =>
+    Math.max(window.innerHeight - VIEWPORT_MARGIN * 2, 240);
+
+  const clampMenuTop = (top: number, panelHeight: number) => {
+    const maxTop = window.innerHeight - panelHeight - VIEWPORT_MARGIN;
+    return Math.min(Math.max(top, TOPBAR_HEIGHT + VIEWPORT_MARGIN), Math.max(TOPBAR_HEIGHT + VIEWPORT_MARGIN, maxTop));
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -286,6 +328,36 @@ export function Sidebar({ expanded, setExpanded }: SidebarProps) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!activeMenu || !dropdownRef.current) {
+      return;
+    }
+
+    const updateMenuPosition = () => {
+      if (!dropdownRef.current) {
+        return;
+      }
+
+      setMenuPosition((currentTop) =>
+        clampMenuTop(currentTop, dropdownRef.current!.offsetHeight),
+      );
+    };
+
+    updateMenuPosition();
+    window.addEventListener("resize", updateMenuPosition);
+
+    return () => window.removeEventListener("resize", updateMenuPosition);
+  }, [activeMenu]);
+
+  const visibleNavItems = navItems
+    .filter((item) => hasRoleAccess(user?.role, item.allowedRoles))
+    .map((item) => ({
+      ...item,
+      submenu: item.submenu?.filter((subItem) =>
+        hasRoleAccess(user?.role, subItem.allowedRoles),
+      ),
+    }));
 
   return (
     <div className="relative flex">
@@ -306,10 +378,19 @@ export function Sidebar({ expanded, setExpanded }: SidebarProps) {
           </a>
         </div>
 
+        <div className={`border-b border-[#2b3e50] px-4 py-3 ${expanded ? "" : "text-center"}`}>
+          <p className="text-[10px] uppercase tracking-[0.18em] text-gray-400">
+            Portal Role
+          </p>
+          <p className="mt-1 text-sm font-semibold text-white">
+            {expanded ? getRoleLabel(user?.role) : getRoleLabel(user?.role).slice(0, 1)}
+          </p>
+        </div>
+
         {/* Navigation */}
         <nav className="flex-1 p-2 overflow-y-auto no-scrollbar">
           <ul className="space-y-2">
-            {navItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const isActive =
                 item.path === "/"
                   ? location.pathname === "/"
@@ -328,19 +409,15 @@ export function Sidebar({ expanded, setExpanded }: SidebarProps) {
                         return;
                       }
 
-                      if (!expanded) {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        const menuHeight = 400;
-                        const viewportHeight = window.innerHeight;
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const estimatedMenuHeight = Math.min(
+                        getMaxMenuHeight(),
+                        88 + item.submenu.length * 52,
+                      );
 
-                        let top = rect.top;
-
-                        if (top + menuHeight > viewportHeight) {
-                          top = viewportHeight - menuHeight - 20;
-                        }
-
-                        setMenuPosition(top);
-                      }
+                      setMenuPosition(
+                        clampMenuTop(rect.top, estimatedMenuHeight),
+                      );
 
                       setActiveMenu(
                         activeMenu?.name === item.name ? null : item,
@@ -395,8 +472,11 @@ export function Sidebar({ expanded, setExpanded }: SidebarProps) {
       {activeMenu && (
         <div
           ref={dropdownRef}
-          style={{ top: menuPosition }}
-          className={`fixed ${expanded ? "left-[calc(16rem+8px)]" : "left-[calc(5rem+8px)]"} w-72 bg-[#33475B] text-white shadow-xl p-6 rounded-lg z-50 max-h-[80vh] overflow-y-auto no-scrollbar transition-all duration-200 ease-out animate-dropdown`}
+          style={{
+            top: menuPosition,
+            maxHeight: `calc(100vh - ${VIEWPORT_MARGIN * 2}px)`,
+          }}
+          className={`fixed ${expanded ? "left-[calc(16rem+8px)]" : "left-[calc(5rem+8px)]"} w-72 bg-[#33475B] text-white shadow-xl p-6 rounded-lg z-50 overflow-y-auto no-scrollbar transition-all duration-200 ease-out animate-dropdown`}
         >
           <h3 className="text-lg font-semibold mb-4">{activeMenu.name}</h3>
 

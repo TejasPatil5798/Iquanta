@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Navigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
 
@@ -5,7 +6,7 @@ export function RoleRoute({
   children,
   allowedRoles,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   allowedRoles: string[];
 }) {
   const { user } = useAuth();

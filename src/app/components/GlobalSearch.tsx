@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { getStudents, type PortalStudent } from "../api/studentsApi";
 
 import {
   CommandDialog,
@@ -11,14 +12,8 @@ import {
 
 export function GlobalSearch() {
   const [open, setOpen] = useState(false);
+  const [students, setStudents] = useState<PortalStudent[]>([]);
   const navigate = useNavigate();
-
-  // Example CRM data (replace later with API)
-  const students = [
-    { id: 1, name: "Rahul Sharma", path: "/students" },
-    { id: 2, name: "Priya Sinha", path: "/students" },
-    { id: 3, name: "Aditya Joshi", path: "/students" },
-  ];
 
   const leads = [
     { id: 1, name: "Rahul Desai", path: "/leads" },
@@ -36,6 +31,19 @@ export function GlobalSearch() {
 
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
+  }, []);
+
+  useEffect(() => {
+    const loadStudents = async () => {
+      try {
+        const response = await getStudents();
+        setStudents(response.data);
+      } catch (error) {
+        console.error("Failed to load students for search", error);
+      }
+    };
+
+    loadStudents();
   }, []);
 
   return (
@@ -96,9 +104,9 @@ export function GlobalSearch() {
         <CommandGroup heading="Students">
           {students.map((student) => (
             <CommandItem
-              key={student.id}
+              key={student._id}
               onSelect={() => {
-                navigate(student.path);
+                navigate("/students");
                 setOpen(false);
               }}
             >

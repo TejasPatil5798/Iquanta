@@ -1,0 +1,63 @@
+export const portalUsers = [
+  {
+    id: 1,
+    name: "Admin User",
+    email: "admin@iquanta.com",
+    phone: "+91 98765 43210",
+    role: "admin",
+    status: "Active",
+    lastLogin: "2026-03-07 09:30 AM",
+  },
+  {
+    id: 2,
+    name: "Priya Patel",
+    email: "priya.patel@iquanta.com",
+    phone: "+91 98765 43211",
+    role: "user",
+    status: "Active",
+    lastLogin: "2026-03-07 08:15 AM",
+  },
+  {
+    id: 3,
+    name: "Arjun Singh",
+    email: "arjun.singh@iquanta.com",
+    phone: "+91 98765 43212",
+    role: "user",
+    status: "Active",
+    lastLogin: "2026-03-07 10:00 AM",
+  },
+  {
+    id: 4,
+    name: "Neha Kumar",
+    email: "neha.kumar@iquanta.com",
+    phone: "+91 98765 43213",
+    role: "user",
+    status: "Active",
+    lastLogin: "2026-03-06 05:45 PM",
+  },
+  {
+    id: 5,
+    name: "Rajesh Kumar",
+    email: "rajesh.kumar@iquanta.com",
+    phone: "+91 98765 43214",
+    role: "teacher",
+    status: "Active",
+    lastLogin: "2026-03-07 09:00 AM",
+  },
+  {
+    id: 6,
+    name: "Suresh Reddy",
+    email: "suresh.reddy@iquanta.com",
+    phone: "+91 98765 43215",
+    role: "manager",
+    status: "Inactive",
+    lastLogin: "2026-02-28 04:30 PM",
+  },
+];
+
+export const permissionSets: Record<string, string[]> = {
+  admin: ["Full system access", "User management", "Workflow and settings"],
+  user: ["Lead management", "Applications and documents", "Student communication"],
+  teacher: ["Campaign management", "Lead source insights", "Funnel optimization"],
+  manager: ["Analytics and reports", "Performance review", "Strategic oversight"],
+};

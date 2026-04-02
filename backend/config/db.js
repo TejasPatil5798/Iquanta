@@ -1,8 +1,6 @@
 import mongoose from "mongoose";
 
 const connectDB = async () => {
-  console.log("ENV =", process.env.MONGO_URI);
-
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, {
       // Additional options for Atlas connection

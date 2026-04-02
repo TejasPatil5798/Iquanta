@@ -19,6 +19,7 @@ import {
 } from "../components/ui/select";
 import API from "../api/axios";
 import { useAuth } from "../context/AuthContext";
+import { roleOptions } from "../lib/portalRoles";
 
 export function Login() {
   const navigate = useNavigate();
@@ -132,16 +133,21 @@ export function Login() {
                 </SelectTrigger>
 
                 <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="user">User</SelectItem>
-                  <SelectItem value="student">Student</SelectItem>
-                  <SelectItem value="teacher">Teacher</SelectItem>
+                  {roleOptions.map((role) => (
+                    <SelectItem key={role.value} value={role.value}>
+                      {role.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
               {errors.role && (
                 <p className="text-red-500 text-sm mt-1">{errors.role}</p>
+              )}
+              {!errors.role && form.role && (
+                <p className="text-xs text-gray-500 mt-1">
+                  {roleOptions.find((role) => role.value === form.role)?.description}
+                </p>
               )}
             </div>
 

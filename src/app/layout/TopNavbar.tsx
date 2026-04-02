@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { Sparkles } from "lucide-react";
 import { useBookmarks } from "../context/BookmarkContext";
 import { useAuth } from "../context/AuthContext";
+import { getRoleLabel } from "../lib/portalRoles";
 import { Package, Plug, Download, Bot } from "lucide-react";
 import { X } from "lucide-react";
 import {
@@ -50,6 +51,11 @@ export function TopNavbar() {
       time: "2 hours ago",
     },
   ]);
+  const roleLabel = getRoleLabel(user?.role);
+  const searchPlaceholder =
+    user?.role === "student"
+      ? "Search applications, documents, updates..."
+      : "Search leads, students, applications... (Ctrl + K)";
 
   return (
     <div className="h-16 bg-[#33475B] border-b border-[#2B3E50] flex items-center justify-between px-6 sticky top-0 z-50">
@@ -59,7 +65,7 @@ export function TopNavbar() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
           <input
             type="text"
-            placeholder="Search leads, students... (Ctrl + K)"
+            placeholder={searchPlaceholder}
             className="w-full pl-10 pr-4 py-2 bg-[#2B3E50] border border-[#3E566E] rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -281,7 +287,9 @@ export function TopNavbar() {
 
               <div className="text-left hidden md:block">
                 <p className="text-sm font-medium text-white">{user?.name || 'User'}</p>
-                <p className="text-xs text-gray-300">{user?.email || 'user@example.com'}</p>
+                <p className="text-xs text-gray-300">
+                  {roleLabel} · {user?.email || 'user@example.com'}
+                </p>
               </div>
 
               <ChevronDown className="w-4 h-4 text-gray-300" />
