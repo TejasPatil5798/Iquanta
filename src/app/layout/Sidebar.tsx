@@ -363,7 +363,7 @@ export function Sidebar({ expanded, setExpanded }: SidebarProps) {
     <div className="relative flex">
       {/* Sidebar */}
       <div
-        className={`fixed overflow-x-visible no-scrollbar left-0 top-0 h-screen bg-[#33475B] flex flex-col transition-all duration-300 ease-in-out z-50 ${
+        className={`fixed overflow-x-visible no-scrollbar left-0 top-0 h-screen bg-[#33475B] flex flex-col transition-all duration-300 ease-in-out z-70 ${
           expanded ? "w-64 px-3" : "w-20"
         }`}
       >
@@ -476,7 +476,7 @@ export function Sidebar({ expanded, setExpanded }: SidebarProps) {
             top: menuPosition,
             maxHeight: `calc(100vh - ${VIEWPORT_MARGIN * 2}px)`,
           }}
-          className={`fixed ${expanded ? "left-[calc(16rem+8px)]" : "left-[calc(5rem+8px)]"} w-72 bg-[#33475B] text-white shadow-xl p-6 rounded-lg z-50 overflow-y-auto no-scrollbar transition-all duration-200 ease-out animate-dropdown`}
+          className={`fixed ${expanded ? "left-[calc(16rem+8px)]" : "left-[calc(5rem+8px)]"} w-72 bg-[#33475B] text-white shadow-xl p-6 rounded-lg z-90 overflow-y-auto no-scrollbar transition-all duration-200 ease-out animate-dropdown`}
         >
           <h3 className="text-lg font-semibold mb-4">{activeMenu.name}</h3>
 

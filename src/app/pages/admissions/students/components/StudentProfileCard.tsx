@@ -1,78 +1,148 @@
-import { Mail, MapPin, Phone, UserRound } from "lucide-react";
-import { Badge } from "../../../../components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
-import type { PortalStudent } from "../../../../api/studentsApi";
-import { formatPortalDate, getStudentStatusColor } from "../studentUtils";
 
-export function StudentProfileCard({
-  student,
-}: {
-  student: PortalStudent;
-}) {
+type StudentDocument = {
+  type?: string;
+  fileName?: string;
+  status?: string;
+  url?: string;
+  notes?: string;
+  uploadedAt?: string;
+};
+
+type StudentProfile = {
+  studentId?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  program?: string;
+  status?: string;
+  enrollmentDate?: string;
+  counselor?: string;
+  city?: string;
+  state?: string;
+  applicationStage?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  address?: string;
+  postalCode?: string;
+  guardianName?: string;
+  guardianPhone?: string;
+  category?: string;
+  notes?: string;
+  documents?: StudentDocument[];
+};
+
+type StudentProfileCardProps = {
+  student: StudentProfile | null;
+};
+
+const renderValue = (value?: string) => value || "—";
+
+export function StudentProfileCard({ student }: StudentProfileCardProps) {
+  if (!student) {
+    return null;
+  }
+
+  const documentCount = student.documents?.length ?? 0;
+
   return (
-    <Card className="border-slate-200">
-      <CardHeader className="border-b border-slate-100">
-        <div className="flex items-start gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
-            <UserRound className="h-7 w-7" />
+    <Card>
+      <CardHeader>
+        <CardTitle>{student.name || "Student Profile"}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Student ID</p>
+              <p className="text-sm text-foreground">{renderValue(student.studentId)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Email</p>
+              <p className="text-sm text-foreground">{renderValue(student.email)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Phone</p>
+              <p className="text-sm text-foreground">{renderValue(student.phone)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Program</p>
+              <p className="text-sm text-foreground">{renderValue(student.program)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Counselor</p>
+              <p className="text-sm text-foreground">{renderValue(student.counselor)}</p>
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <CardTitle className="text-xl text-slate-900">
-              {student.name}
-            </CardTitle>
-            <p className="mt-1 text-sm text-slate-500">{student.studentId}</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Badge className={getStudentStatusColor(student.status)}>
-                {student.status}
-              </Badge>
-              <Badge variant="outline">{student.program}</Badge>
+
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Status</p>
+              <p className="text-sm capitalize text-foreground">{renderValue(student.status)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Application Stage</p>
+              <p className="text-sm capitalize text-foreground">{renderValue(student.applicationStage)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Enrollment Date</p>
+              <p className="text-sm text-foreground">{renderValue(student.enrollmentDate)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Location</p>
+              <p className="text-sm text-foreground">
+                {[student.city, student.state].filter(Boolean).join(", ") || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Documents</p>
+              <p className="text-sm text-foreground">{documentCount} tracked</p>
             </div>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="grid gap-4 pt-6">
-        <div className="rounded-xl border border-slate-200 p-4">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-            Contact Details
-          </p>
-          <div className="mt-3 space-y-3 text-sm text-slate-700">
-            <p className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-slate-400" />
-              {student.email}
-            </p>
-            <p className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-slate-400" />
-              {student.phone}
-            </p>
-            <p className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-slate-400" />
-              {student.city && student.state
-                ? `${student.city}, ${student.state}`
-                : student.city || student.state || "Location not added"}
-            </p>
+
+        <div className="grid gap-4 border-t pt-6 md:grid-cols-2">
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Date of Birth</p>
+              <p className="text-sm text-foreground">{renderValue(student.dateOfBirth)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Gender</p>
+              <p className="text-sm text-foreground">{renderValue(student.gender)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Category</p>
+              <p className="text-sm text-foreground">{renderValue(student.category)}</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Guardian Name</p>
+              <p className="text-sm text-foreground">{renderValue(student.guardianName)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Guardian Phone</p>
+              <p className="text-sm text-foreground">{renderValue(student.guardianPhone)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Postal Code</p>
+              <p className="text-sm text-foreground">{renderValue(student.postalCode)}</p>
+            </div>
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-slate-200 p-4">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-              Counselor
-            </p>
-            <p className="mt-2 text-sm font-semibold text-slate-900">
-              {student.counselor}
-            </p>
-          </div>
-          <div className="rounded-xl border border-slate-200 p-4">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-              Enrollment Date
-            </p>
-            <p className="mt-2 text-sm font-semibold text-slate-900">
-              {formatPortalDate(student.enrollmentDate)}
-            </p>
-          </div>
+        <div className="border-t pt-6">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Address</p>
+          <p className="mt-1 text-sm text-foreground">{renderValue(student.address)}</p>
+        </div>
+
+        <div className="border-t pt-6">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Notes</p>
+          <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">{renderValue(student.notes)}</p>
         </div>
       </CardContent>
     </Card>
   );
 }
-

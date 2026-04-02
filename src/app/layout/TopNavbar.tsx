@@ -58,7 +58,7 @@ export function TopNavbar() {
       : "Search leads, students, applications... (Ctrl + K)";
 
   return (
-    <div className="h-16 bg-[#33475B] border-b border-[#2B3E50] flex items-center justify-between px-6 sticky top-0 z-50">
+    <div className="h-16 bg-[#33475B] border-b border-[#2B3E50] flex items-center justify-between px-6 sticky top-0 z-70">
       {/* Search */}
       <div className="flex-1 max-w-xl">
         <div className="relative">

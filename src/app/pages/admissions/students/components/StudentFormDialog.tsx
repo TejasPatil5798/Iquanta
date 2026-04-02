@@ -1,331 +1,430 @@
-import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
-import { toast } from "sonner";
-import {
-  createStudent,
-  updateStudent,
-  type CreateStudentPayload,
-  type PortalStudent,
-} from "../../../../api/studentsApi";
+import React, { useMemo, useState } from "react";
 import { Button } from "../../../../components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../../../../components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../../../../components/ui/dialog";
 import { Input } from "../../../../components/ui/input";
 import { Label } from "../../../../components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../../../components/ui/select";
+import { Textarea } from "../../../../components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../components/ui/select";
 
-const emptyForm: CreateStudentPayload = {
+type StudentDocumentStatus = "pending" | "received" | "verified" | "rejected";
+
+type StudentDocument = {
+  type: string;
+  fileName: string;
+  status: StudentDocumentStatus;
+  url?: string;
+  notes?: string;
+  uploadedAt?: string;
+};
+
+type StudentFormValues = {
+  studentId: string;
+  name: string;
+  email: string;
+  phone: string;
+  program: string;
+  status: string;
+  enrollmentDate: string;
+  counselor: string;
+  city: string;
+  state: string;
+  applicationStage: string;
+  dateOfBirth?: string;
+  gender?: string;
+  address?: string;
+  postalCode?: string;
+  guardianName?: string;
+  guardianPhone?: string;
+  category?: string;
+  tenthBoard?: string;
+  tenthPercentage?: string;
+  twelfthBoard?: string;
+  twelfthPercentage?: string;
+  graduationCourse?: string;
+  graduationPercentage?: string;
+  notes?: string;
+  documents: StudentDocument[];
+};
+
+type StudentFormDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (values: StudentFormValues) => void;
+  initialValues?: Partial<StudentFormValues> | null;
+  mode?: "create" | "edit";
+};
+
+const DOCUMENT_TYPES = [
+  "10th Marksheet",
+  "12th Marksheet",
+  "Aadhaar Card",
+  "Caste Certificate",
+  "Transfer Certificate",
+  "Migration Certificate",
+  "Passport Photo",
+  "Signature",
+  "Income Certificate",
+  "Domicile Certificate",
+] as const;
+
+const DOCUMENT_STATUSES: StudentDocumentStatus[] = ["pending", "received", "verified", "rejected"];
+
+const createEmptyDocument = (type = ""): StudentDocument => ({
+  type,
+  fileName: "",
+  status: "pending",
+  url: "",
+  notes: "",
+  uploadedAt: "",
+});
+
+const buildInitialDocuments = (documents?: StudentDocument[]) => {
+  if (documents && documents.length > 0) {
+    return documents.map((document) => ({
+      ...createEmptyDocument(),
+      ...document,
+    }));
+  }
+
+  return DOCUMENT_TYPES.slice(0, 5).map((type) => createEmptyDocument(type));
+};
+
+const defaultValues: StudentFormValues = {
   studentId: "",
   name: "",
   email: "",
   phone: "",
   program: "",
-  status: "Active",
+  status: "new",
   enrollmentDate: "",
   counselor: "",
-  documents: 0,
   city: "",
   state: "",
-  applicationStage: "",
+  applicationStage: "lead",
+  dateOfBirth: "",
+  gender: "",
+  address: "",
+  postalCode: "",
+  guardianName: "",
+  guardianPhone: "",
+  category: "",
+  tenthBoard: "",
+  tenthPercentage: "",
+  twelfthBoard: "",
+  twelfthPercentage: "",
+  graduationCourse: "",
+  graduationPercentage: "",
+  notes: "",
+  documents: buildInitialDocuments(),
 };
 
-function RequiredMark() {
-  return <span className="text-red-500">*</span>;
-}
-
-function toFormValues(student?: PortalStudent | null): CreateStudentPayload {
-  if (!student) {
-    return emptyForm;
-  }
-
-  return {
-    studentId: student.studentId,
-    name: student.name,
-    email: student.email,
-    phone: student.phone,
-    program: student.program,
-    status: student.status,
-    enrollmentDate: student.enrollmentDate.slice(0, 10),
-    counselor: student.counselor,
-    documents: student.documents,
-    city: student.city ?? "",
-    state: student.state ?? "",
-    applicationStage: student.applicationStage ?? "",
-  };
-}
-
 export function StudentFormDialog({
-  mode,
-  student,
-  trigger,
-  onStudentCreated,
-  onStudentUpdated,
-}: {
-  mode: "create" | "edit";
-  student?: PortalStudent | null;
-  trigger: React.ReactNode;
-  onStudentCreated?: (student: PortalStudent) => void;
-  onStudentUpdated?: (student: PortalStudent) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState<CreateStudentPayload>(toFormValues(student));
-
-  const title = useMemo(
-    () => (mode === "create" ? "Add Student" : "Edit Student"),
-    [mode],
+  open,
+  onOpenChange,
+  onSubmit,
+  initialValues,
+  mode = "create",
+}: StudentFormDialogProps) {
+  const mergedInitialValues = useMemo<StudentFormValues>(
+    () => ({
+      ...defaultValues,
+      ...initialValues,
+      documents: buildInitialDocuments(initialValues?.documents),
+    }),
+    [initialValues],
   );
 
-  useEffect(() => {
-    if (open) {
-      setForm(toFormValues(student));
-    }
-  }, [open, student]);
+  const [formValues, setFormValues] = useState<StudentFormValues>(mergedInitialValues);
 
-  const updateField = <K extends keyof CreateStudentPayload>(
-    key: K,
-    value: CreateStudentPayload[K],
-  ) => {
-    setForm((current) => ({ ...current, [key]: value }));
+  React.useEffect(() => {
+    setFormValues(mergedInitialValues);
+  }, [mergedInitialValues, open]);
+
+  const handleChange = <K extends keyof StudentFormValues>(key: K, value: StudentFormValues[K]) => {
+    setFormValues((previous) => ({
+      ...previous,
+      [key]: value,
+    }));
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleDocumentChange = (index: number, key: keyof StudentDocument, value: string) => {
+    setFormValues((previous) => ({
+      ...previous,
+      documents: previous.documents.map((document, documentIndex) =>
+        documentIndex === index ? { ...document, [key]: value } : document,
+      ),
+    }));
+  };
+
+  const addDocument = () => {
+    setFormValues((previous) => ({
+      ...previous,
+      documents: [...previous.documents, createEmptyDocument()],
+    }));
+  };
+
+  const removeDocument = (index: number) => {
+    setFormValues((previous) => ({
+      ...previous,
+      documents: previous.documents.filter((_, documentIndex) => documentIndex !== index),
+    }));
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    setSubmitting(true);
 
-    try {
-      const payload = {
-        ...form,
-        documents: Number(form.documents) || 0,
-      };
+    onSubmit({
+      ...formValues,
+      documents: formValues.documents.filter(
+        (document) => document.type.trim() || document.fileName.trim() || document.notes?.trim() || document.url?.trim(),
+      ),
+    });
 
-      if (mode === "create") {
-        const response = await createStudent(payload);
-        onStudentCreated?.(response.data);
-        toast.success("Student created successfully");
-      } else if (student?._id) {
-        const response = await updateStudent(student._id, payload);
-        onStudentUpdated?.(response.data);
-        toast.success("Student updated successfully");
-      }
-
-      setOpen(false);
-      setForm(emptyForm);
-    } catch (error) {
-      console.error(`Failed to ${mode} student`, error);
-      const errorMessage = axios.isAxiosError(error)
-        ? error.response?.data?.message || error.message
-        : `Failed to ${mode} student`;
-      toast.error(errorMessage);
-    } finally {
-      setSubmitting(false);
-    }
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>
-            {mode === "create"
-              ? "Create a new student record in the admissions portal."
-              : "Update the selected student record."}
-          </DialogDescription>
-          <p className="text-xs text-slate-500">
-            Fields marked with <span className="font-semibold text-red-500">*</span> are required.
-          </p>
+          <DialogTitle>{mode === "edit" ? "Edit Student Profile" : "Add Student Profile"}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor={`${mode}-student-id`}>
-                Student ID <RequiredMark />
-              </Label>
-              <Input
-                id={`${mode}-student-id`}
-                value={form.studentId}
-                onChange={(event) => updateField("studentId", event.target.value)}
-                placeholder="STU-2026-006"
-                required
-              />
+        <form className="space-y-8" onSubmit={handleSubmit}>
+          <section className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Basic Details</h3>
+              <p className="text-sm text-muted-foreground">Capture the core admissions and contact information.</p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor={`${mode}-student-name`}>
-                Full Name <RequiredMark />
-              </Label>
-              <Input
-                id={`${mode}-student-name`}
-                value={form.name}
-                onChange={(event) => updateField("name", event.target.value)}
-                placeholder="Student full name"
-                required
-              />
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor="studentId">Student ID</Label>
+                <Input id="studentId" value={formValues.studentId} onChange={(event) => handleChange("studentId", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <Input id="name" value={formValues.name} onChange={(event) => handleChange("name", event.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" value={formValues.email} onChange={(event) => handleChange("email", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone</Label>
+                <Input id="phone" value={formValues.phone} onChange={(event) => handleChange("phone", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="program">Program</Label>
+                <Input id="program" value={formValues.program} onChange={(event) => handleChange("program", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select value={formValues.status} onValueChange={(value) => handleChange("status", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">New</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="follow-up">Follow Up</SelectItem>
+                    <SelectItem value="admitted">Admitted</SelectItem>
+                    <SelectItem value="on-hold">On Hold</SelectItem>
+                    <SelectItem value="closed">Closed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="enrollmentDate">Enrollment Date</Label>
+                <Input id="enrollmentDate" type="date" value={formValues.enrollmentDate} onChange={(event) => handleChange("enrollmentDate", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="counselor">Counselor</Label>
+                <Input id="counselor" value={formValues.counselor} onChange={(event) => handleChange("counselor", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Application Stage</Label>
+                <Select value={formValues.applicationStage} onValueChange={(value) => handleChange("applicationStage", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select stage" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="lead">Lead</SelectItem>
+                    <SelectItem value="application-submitted">Application Submitted</SelectItem>
+                    <SelectItem value="documents-pending">Documents Pending</SelectItem>
+                    <SelectItem value="verification">Verification</SelectItem>
+                    <SelectItem value="fee-pending">Fee Pending</SelectItem>
+                    <SelectItem value="enrolled">Enrolled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor={`${mode}-student-email`}>
-                Email <RequiredMark />
-              </Label>
-              <Input
-                id={`${mode}-student-email`}
-                type="email"
-                value={form.email}
-                onChange={(event) => updateField("email", event.target.value)}
-                placeholder="name@email.com"
-                required
-              />
+          </section>
+
+          <section className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Personal Details</h3>
+              <p className="text-sm text-muted-foreground">Useful for verification and counselling follow-up.</p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor={`${mode}-student-phone`}>
-                Phone <RequiredMark />
-              </Label>
-              <Input
-                id={`${mode}-student-phone`}
-                value={form.phone}
-                onChange={(event) => updateField("phone", event.target.value)}
-                placeholder="+91 98765 43210"
-                required
-              />
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                <Input id="dateOfBirth" type="date" value={formValues.dateOfBirth} onChange={(event) => handleChange("dateOfBirth", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="gender">Gender</Label>
+                <Input id="gender" value={formValues.gender} onChange={(event) => handleChange("gender", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Input id="category" value={formValues.category} onChange={(event) => handleChange("category", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="guardianName">Guardian Name</Label>
+                <Input id="guardianName" value={formValues.guardianName} onChange={(event) => handleChange("guardianName", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="guardianPhone">Guardian Phone</Label>
+                <Input id="guardianPhone" value={formValues.guardianPhone} onChange={(event) => handleChange("guardianPhone", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="postalCode">Postal Code</Label>
+                <Input id="postalCode" value={formValues.postalCode} onChange={(event) => handleChange("postalCode", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">City</Label>
+                <Input id="city" value={formValues.city} onChange={(event) => handleChange("city", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="state">State</Label>
+                <Input id="state" value={formValues.state} onChange={(event) => handleChange("state", event.target.value)} />
+              </div>
+              <div className="space-y-2 md:col-span-2 xl:col-span-3">
+                <Label htmlFor="address">Address</Label>
+                <Textarea id="address" value={formValues.address} onChange={(event) => handleChange("address", event.target.value)} rows={3} />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor={`${mode}-student-program`}>
-                Program <RequiredMark />
-              </Label>
-              <Input
-                id={`${mode}-student-program`}
-                value={form.program}
-                onChange={(event) => updateField("program", event.target.value)}
-                placeholder="MBA"
-                required
-              />
+          </section>
+
+          <section className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Academic Details</h3>
+              <p className="text-sm text-muted-foreground">Capture educational background for admissions review.</p>
             </div>
-            <div className="space-y-2">
-              <Label>
-                Status <RequiredMark />
-              </Label>
-              <Select
-                value={form.status}
-                onValueChange={(value) =>
-                  updateField("status", value as CreateStudentPayload["status"])
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Inactive">Inactive</SelectItem>
-                  <SelectItem value="Graduated">Graduated</SelectItem>
-                  <SelectItem value="Dropped">Dropped</SelectItem>
-                </SelectContent>
-              </Select>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor="tenthBoard">10th Board</Label>
+                <Input id="tenthBoard" value={formValues.tenthBoard} onChange={(event) => handleChange("tenthBoard", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tenthPercentage">10th Percentage</Label>
+                <Input id="tenthPercentage" value={formValues.tenthPercentage} onChange={(event) => handleChange("tenthPercentage", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="twelfthBoard">12th Board</Label>
+                <Input id="twelfthBoard" value={formValues.twelfthBoard} onChange={(event) => handleChange("twelfthBoard", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="twelfthPercentage">12th Percentage</Label>
+                <Input id="twelfthPercentage" value={formValues.twelfthPercentage} onChange={(event) => handleChange("twelfthPercentage", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="graduationCourse">Graduation Course</Label>
+                <Input id="graduationCourse" value={formValues.graduationCourse} onChange={(event) => handleChange("graduationCourse", event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="graduationPercentage">Graduation Percentage</Label>
+                <Input id="graduationPercentage" value={formValues.graduationPercentage} onChange={(event) => handleChange("graduationPercentage", event.target.value)} />
+              </div>
+              <div className="space-y-2 md:col-span-2 xl:col-span-3">
+                <Label htmlFor="notes">Counselor Notes</Label>
+                <Textarea id="notes" value={formValues.notes} onChange={(event) => handleChange("notes", event.target.value)} rows={4} />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor={`${mode}-enrollment-date`}>
-                Enrollment Date <RequiredMark />
-              </Label>
-              <Input
-                id={`${mode}-enrollment-date`}
-                type="date"
-                value={form.enrollmentDate}
-                onChange={(event) =>
-                  updateField("enrollmentDate", event.target.value)
-                }
-                required
-              />
+          </section>
+
+          <section className="space-y-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Documents</h3>
+                <p className="text-sm text-muted-foreground">Store uploaded document metadata for admissions checks.</p>
+              </div>
+              <Button type="button" variant="outline" onClick={addDocument}>
+                Add Document
+              </Button>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor={`${mode}-student-counselor`}>
-                Counselor <RequiredMark />
-              </Label>
-              <Input
-                id={`${mode}-student-counselor`}
-                value={form.counselor}
-                onChange={(event) => updateField("counselor", event.target.value)}
-                placeholder="Priya Patel"
-                required
-              />
+
+            <div className="space-y-4">
+              {formValues.documents.map((document, index) => (
+                <div key={`${document.type}-${index}`} className="rounded-lg border border-border p-4">
+                  <div className="mb-4 flex items-center justify-between">
+                    <p className="text-sm font-medium text-foreground">Document {index + 1}</p>
+                    <Button type="button" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => removeDocument(index)}>
+                      Remove
+                    </Button>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="space-y-2">
+                      <Label>Document Type</Label>
+                      <Select value={document.type || undefined} onValueChange={(value) => handleDocumentChange(index, "type", value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select document type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DOCUMENT_TYPES.map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {type}
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>File Name</Label>
+                      <Input value={document.fileName} onChange={(event) => handleDocumentChange(index, "fileName", event.target.value)} placeholder="e.g. 12th-marksheet.pdf" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Status</Label>
+                      <Select value={document.status} onValueChange={(value) => handleDocumentChange(index, "status", value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DOCUMENT_STATUSES.map((status) => (
+                            <SelectItem key={status} value={status}>
+                              {status}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Document URL</Label>
+                      <Input value={document.url || ""} onChange={(event) => handleDocumentChange(index, "url", event.target.value)} placeholder="Optional link" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Uploaded Date</Label>
+                      <Input value={document.uploadedAt || ""} type="date" onChange={(event) => handleDocumentChange(index, "uploadedAt", event.target.value)} />
+                    </div>
+                    <div className="space-y-2 md:col-span-2 xl:col-span-3">
+                      <Label>Notes</Label>
+                      <Textarea value={document.notes || ""} onChange={(event) => handleDocumentChange(index, "notes", event.target.value)} rows={2} placeholder="Verification remarks or missing pages note" />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor={`${mode}-student-documents`}>Documents Count</Label>
-              <Input
-                id={`${mode}-student-documents`}
-                type="number"
-                min="0"
-                value={String(form.documents)}
-                onChange={(event) =>
-                  updateField("documents", Number(event.target.value))
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`${mode}-student-stage`}>Application Stage</Label>
-              <Input
-                id={`${mode}-student-stage`}
-                value={form.applicationStage ?? ""}
-                onChange={(event) =>
-                  updateField("applicationStage", event.target.value)
-                }
-                placeholder="Under Review"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`${mode}-student-city`}>City</Label>
-              <Input
-                id={`${mode}-student-city`}
-                value={form.city ?? ""}
-                onChange={(event) => updateField("city", event.target.value)}
-                placeholder="Mumbai"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`${mode}-student-state`}>State</Label>
-              <Input
-                id={`${mode}-student-state`}
-                value={form.state ?? ""}
-                onChange={(event) => updateField("state", event.target.value)}
-                placeholder="Maharashtra"
-              />
-            </div>
-          </div>
+          </section>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={submitting}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="bg-blue-600 text-white hover:bg-blue-700"
-              disabled={submitting}
-            >
-              {submitting
-                ? mode === "create"
-                  ? "Saving..."
-                  : "Updating..."
-                : mode === "create"
-                  ? "Save Student"
-                  : "Update Student"}
-            </Button>
+            <Button type="submit">{mode === "edit" ? "Save Changes" : "Create Student"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
