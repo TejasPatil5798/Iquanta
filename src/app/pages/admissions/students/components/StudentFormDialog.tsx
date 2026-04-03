@@ -217,7 +217,7 @@ export function StudentFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto">
+      <DialogContent className="max-h-[85vh] max-w-5xl mt-6 overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {mode === "edit" ? "Edit Student Profile" : "Add Student Profile"}

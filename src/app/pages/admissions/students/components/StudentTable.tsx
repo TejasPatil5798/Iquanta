@@ -54,11 +54,13 @@ export function StudentTable({
   loading,
   onStudentUpdated,
   onStudentDeleted,
+  onEditStudent,
 }: {
   students: PortalStudent[];
   loading: boolean;
   onStudentUpdated: (student: PortalStudent) => void;
   onStudentDeleted: (studentId: string) => void;
+  onEditStudent: (student: PortalStudent) => void;
 }) {
   const [selectedStudent, setSelectedStudent] = useState<PortalStudent | null>(
     null,
@@ -374,7 +376,11 @@ export function StudentTable({
                       >
                         View Profile
                       </Button>
-                      <Button variant="ghost" size="icon" disabled>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEditStudent(student)}
+                      >
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <AlertDialog>

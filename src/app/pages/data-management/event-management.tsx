@@ -1,54 +1,83 @@
-import React from "react";
-import { FaPlus } from "react-icons/fa";
+import React from 'react';
+import { 
+  ChevronDown, 
+  ExternalLink,
+  Play,
+  LineChart
+} from 'lucide-react';
 
 export function EventManagement() {
   return (
-    <div className="w-full min-h-screen bg-gray-100">
-
-      {/* Top Header */}
-      <div className="flex justify-between items-center px-6 py-4 bg-white shadow-sm">
-        <h1 className="text-xl font-semibold text-gray-800">
+    <div className="min-h-screen bg-white font-sans text-[#33475b]">
+      
+      {/* Header */}
+      <header className="border-b border-[#eaf0f6] px-8 py-4 flex justify-between items-center sticky top-0 bg-white z-10">
+        <h1 className="text-2xl font-bold text-[#2d3e50]">
           Event management
         </h1>
 
-        <button className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-md text-sm">
+        <button className="bg-[#2d3e50] text-white px-4 py-2 rounded-sm text-sm font-bold flex items-center">
           Create an event
-          <FaPlus className="text-xs" />
+          <ChevronDown size={16} className="ml-2" />
         </button>
-      </div>
+      </header>
 
-      {/* Main Content */}
-      <div className="flex flex-col md:flex-row items-center justify-between px-10 py-16">
+      {/* Main */}
+      <main className="max-w-6xl mx-auto px-8 py-20">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-12">
 
-        {/* Left Content */}
-        <div className="max-w-lg">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Track the activity that matters most to your business.
-          </h2>
+          {/* Left Content */}
+          <div className="max-w-md">
+            <h2 className="text-3xl font-bold mb-6 leading-tight">
+              Track the activity that matters most to your business.
+            </h2>
 
-          <p className="text-gray-600 mb-4">
-            Create custom events to track any interaction a visitor has with your company. 
-            Then use the event data across tools to create targeted campaigns and analyze 
-            the effectiveness of your marketing.
-          </p>
+            <p className="text-gray-500 mb-8">
+              Create custom events to track user interactions and analyze performance
+              across your tools.
+            </p>
 
-          <p className="text-gray-600">
-            New to custom events?{" "}
-            <span className="text-blue-600 cursor-pointer font-medium">
-              Check out the user guide to learn more.
-            </span>
-          </p>
-        </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-2">
+                New to custom events?
+              </p>
 
-        {/* Right Illustration */}
-        <div className="mt-10 md:mt-0">
-          <div className="w-72 h-72 bg-gray-200 rounded-xl flex items-center justify-center">
-            <span className="text-gray-500 text-sm">
-              Illustration
-            </span>
+              <a
+                href="#"
+                className="text-blue-600 font-semibold flex items-center"
+              >
+                View guide
+                <ExternalLink size={14} className="ml-1" />
+              </a>
+            </div>
           </div>
+
+          {/* Illustration */}
+          <div className="relative w-full max-w-sm">
+
+            {/* Screen */}
+            <div className="bg-white border-2 rounded-xl h-44 flex items-center justify-center shadow rotate-[-6deg]">
+              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
+                <Play size={28} className="text-blue-500 ml-1" />
+              </div>
+            </div>
+
+            {/* Chart */}
+            <div className="absolute bottom-[-20px] right-0 bg-white border rounded-lg w-40 h-28 p-3 shadow rotate-3">
+              <div className="flex items-end gap-1 h-full">
+                <div className="w-2 bg-orange-400 h-1/3 rounded"></div>
+                <div className="w-2 bg-orange-400 h-1/2 rounded"></div>
+                <div className="w-2 bg-orange-400 h-4/5 rounded"></div>
+                <div className="w-2 bg-orange-400 h-2/5 rounded"></div>
+              </div>
+
+              <LineChart className="absolute inset-0 text-blue-500 opacity-70" />
+            </div>
+
+          </div>
+
         </div>
-      </div>
+      </main>
     </div>
   );
 }

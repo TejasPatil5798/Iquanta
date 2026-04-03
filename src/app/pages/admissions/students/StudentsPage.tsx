@@ -3,7 +3,7 @@ import { Outlet } from "react-router";
 import { Download } from "lucide-react";
 import { getStudents, type PortalStudent } from "../../../api/studentsApi";
 import { Button } from "../../../components/ui/button";
-import { createStudent } from "../../../api/studentsApi";
+import { createStudent, updateStudent } from "../../../api/studentsApi";
 import {
   StudentFilters,
   type StudentFilterState,
@@ -25,6 +25,9 @@ export function StudentsPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<PortalStudent | null>(
+    null,
+  );
 
   const studentsPerPage = 5;
 
@@ -169,13 +172,13 @@ export function StudentsPage() {
   };
 
   const handleStudentSubmit = async (values: any) => {
-  try {
-    const response = await createStudent(values);
-    handleStudentCreated(response.data);
-  } catch (error) {
-    console.error("Failed to create student", error);
-  }
-};
+    try {
+      const response = await createStudent(values);
+      handleStudentCreated(response.data);
+    } catch (error) {
+      console.error("Failed to create student", error);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -202,6 +205,26 @@ export function StudentsPage() {
           onSubmit={handleStudentSubmit}
         />
       </div>
+
+      <StudentFormDialog
+        open={Boolean(editingStudent)}
+        onOpenChange={(open) => {
+          if (!open) setEditingStudent(null);
+        }}
+        mode="edit"
+        initialValues={editingStudent || undefined}
+        onSubmit={async (values) => {
+          if (!editingStudent) return;
+
+          try {
+            const response = await updateStudent(editingStudent._id, values);
+            handleStudentUpdated(response.data);
+            setEditingStudent(null);
+          } catch (error) {
+            console.error("Failed to update student", error);
+          }
+        }}
+      />
 
       <StudentSummaryCards
         total={total}
@@ -244,6 +267,7 @@ export function StudentsPage() {
         loading={loading}
         onStudentUpdated={handleStudentUpdated}
         onStudentDeleted={handleStudentDeleted}
+        onEditStudent={setEditingStudent}
       />
 
       {!loading && filteredStudents.length > 0 ? (
