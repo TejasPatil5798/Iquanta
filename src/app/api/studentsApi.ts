@@ -1,5 +1,16 @@
 import API from "./axios";
 
+export interface StudentDocument {
+  type: string;
+  fileName: string;
+  status: string;
+  url?: string;
+  notes?: string;
+  uploadedAt?: string;
+  issuer?: string;
+  documentNumber?: string;
+}
+
 export interface PortalStudent {
   _id: string;
   studentId: string;
@@ -10,7 +21,7 @@ export interface PortalStudent {
   status: "Active" | "Inactive" | "Graduated" | "Dropped";
   enrollmentDate: string;
   counselor: string;
-  documents: number;
+  documents: StudentDocument[];
   city?: string;
   state?: string;
   applicationStage?: string;
@@ -25,7 +36,7 @@ export interface CreateStudentPayload {
   status: PortalStudent["status"];
   enrollmentDate: string;
   counselor: string;
-  documents: number;
+  documents: StudentDocument[];
   city?: string;
   state?: string;
   applicationStage?: string;

@@ -36,7 +36,15 @@ import {
   type CreateStudentPayload,
   type PortalStudent,
 } from "../../../../api/studentsApi";
-import { Calendar, FileText, Mail, Pencil, Phone, Trash2, User } from "lucide-react";
+import {
+  Calendar,
+  FileText,
+  Mail,
+  Pencil,
+  Phone,
+  Trash2,
+  User,
+} from "lucide-react";
 import { formatPortalDate, getStudentStatusColor } from "../studentUtils";
 import { StudentProfileDrawer } from "./StudentProfileDrawer";
 import { StudentFormDialog } from "./StudentFormDialog";
@@ -52,9 +60,13 @@ export function StudentTable({
   onStudentUpdated: (student: PortalStudent) => void;
   onStudentDeleted: (studentId: string) => void;
 }) {
-  const [selectedStudent, setSelectedStudent] = useState<PortalStudent | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<PortalStudent | null>(
+    null,
+  );
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
-  const [bulkStatus, setBulkStatus] = useState<PortalStudent["status"] | "">("");
+  const [bulkStatus, setBulkStatus] = useState<PortalStudent["status"] | "">(
+    "",
+  );
 
   const allVisibleSelected =
     students.length > 0 &&
@@ -86,7 +98,9 @@ export function StudentTable({
   const toggleSelectAllVisible = (checked: boolean) => {
     setSelectedStudentIds((current) => {
       if (checked) {
-        return [...new Set([...current, ...students.map((student) => student._id)])];
+        return [
+          ...new Set([...current, ...students.map((student) => student._id)]),
+        ];
       }
 
       return current.filter(
@@ -101,7 +115,9 @@ export function StudentTable({
     );
 
     try {
-      await Promise.all(selectedStudents.map((student) => deleteStudent(student._id)));
+      await Promise.all(
+        selectedStudents.map((student) => deleteStudent(student._id)),
+      );
 
       selectedStudents.forEach((student) => {
         onStudentDeleted(student._id);
@@ -170,7 +186,8 @@ export function StudentTable({
       {hasSelection ? (
         <div className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-amber-900">
-            <span className="font-semibold">{selectedStudentIds.length}</span> student
+            <span className="font-semibold">{selectedStudentIds.length}</span>{" "}
+            student
             {selectedStudentIds.length > 1 ? "s" : ""} selected.
           </p>
           <div className="flex items-center gap-2">
@@ -211,7 +228,10 @@ export function StudentTable({
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button type="button" className="bg-red-600 text-white hover:bg-red-700">
+                <Button
+                  type="button"
+                  className="bg-red-600 text-white hover:bg-red-700"
+                >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete Selected
                 </Button>
@@ -220,8 +240,10 @@ export function StudentTable({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete selected students?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently remove {selectedStudentIds.length} selected student
-                    {selectedStudentIds.length > 1 ? "s" : ""} from the admissions portal.
+                    This will permanently remove {selectedStudentIds.length}{" "}
+                    selected student
+                    {selectedStudentIds.length > 1 ? "s" : ""} from the
+                    admissions portal.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -246,7 +268,9 @@ export function StudentTable({
               <TableHead className="w-12">
                 <Checkbox
                   checked={allVisibleSelected}
-                  onCheckedChange={(checked) => toggleSelectAllVisible(Boolean(checked))}
+                  onCheckedChange={(checked) =>
+                    toggleSelectAllVisible(Boolean(checked))
+                  }
                   aria-label="Select all students on this page"
                 />
               </TableHead>
@@ -263,13 +287,19 @@ export function StudentTable({
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={9} className="py-10 text-center text-sm text-gray-500">
+                <TableCell
+                  colSpan={9}
+                  className="py-10 text-center text-sm text-gray-500"
+                >
                   Loading students from database...
                 </TableCell>
               </TableRow>
             ) : students.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="py-10 text-center text-sm text-gray-500">
+                <TableCell
+                  colSpan={9}
+                  className="py-10 text-center text-sm text-gray-500"
+                >
                   No students found in the database.
                 </TableCell>
               </TableRow>
@@ -291,8 +321,12 @@ export function StudentTable({
                         <User className="h-5 w-5 text-blue-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{student.name}</p>
-                        <p className="text-xs text-gray-500">{student.studentId}</p>
+                        <p className="font-medium text-gray-900">
+                          {student.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {student.studentId}
+                        </p>
                       </div>
                     </div>
                   </TableCell>
@@ -328,7 +362,7 @@ export function StudentTable({
                   <TableCell>
                     <p className="flex items-center gap-1 text-sm text-gray-900">
                       <FileText className="h-3 w-3" />
-                      {student.documents} files
+                      {student.documents?.length || 0} files
                     </p>
                   </TableCell>
                   <TableCell>
@@ -340,27 +374,27 @@ export function StudentTable({
                       >
                         View Profile
                       </Button>
-                      <StudentFormDialog
-                        mode="edit"
-                        student={student}
-                        onStudentUpdated={onStudentUpdated}
-                        trigger={
-                          <Button variant="ghost" size="icon">
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        }
-                      />
+                      <Button variant="ghost" size="icon" disabled>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-red-600 hover:text-red-700">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-red-600 hover:text-red-700"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Delete student record?</AlertDialogTitle>
+                            <AlertDialogTitle>
+                              Delete student record?
+                            </AlertDialogTitle>
                             <AlertDialogDescription>
-                              This will permanently remove {student.name} from the admissions portal.
+                              This will permanently remove {student.name} from
+                              the admissions portal.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>

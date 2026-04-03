@@ -124,7 +124,7 @@ function normalizeDocuments(payload, existingStudent = {}) {
   );
 }
 
-const normalizeStudentPayload = (payload, existingStudent = {}) => {
+function normalizeStudentPayload(payload, existingStudent = {}) {
   const documents = normalizeDocuments(payload, existingStudent);
 
   return {
@@ -236,7 +236,7 @@ const normalizeStudentPayload = (payload, existingStudent = {}) => {
     ),
     notes: normalizeOptionalString(payload.notes, existingStudent.notes),
   };
-};
+}
 
 export const getStudents = async (_req, res) => {
   try {

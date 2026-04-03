@@ -3,6 +3,7 @@ import { Outlet } from "react-router";
 import { Download } from "lucide-react";
 import { getStudents, type PortalStudent } from "../../../api/studentsApi";
 import { Button } from "../../../components/ui/button";
+import { createStudent } from "../../../api/studentsApi";
 import {
   StudentFilters,
   type StudentFilterState,
@@ -22,6 +23,8 @@ export function StudentsPage() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<StudentFilterState>(initialFilters);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const studentsPerPage = 5;
 
@@ -55,11 +58,18 @@ export function StudentsPage() {
   };
 
   const total = students.length;
-  const active = students.filter((student) => student.status === "Active").length;
-  const graduated = students.filter((student) => student.status === "Graduated").length;
-  const inactive = students.filter((student) => student.status === "Inactive").length;
+  const active = students.filter(
+    (student) => student.status === "Active",
+  ).length;
+  const graduated = students.filter(
+    (student) => student.status === "Graduated",
+  ).length;
+  const inactive = students.filter(
+    (student) => student.status === "Inactive",
+  ).length;
   const programs = useMemo(
-    () => Array.from(new Set(students.map((student) => student.program))).sort(),
+    () =>
+      Array.from(new Set(students.map((student) => student.program))).sort(),
     [students],
   );
 
@@ -134,7 +144,7 @@ export function StudentsPage() {
         student.status,
         student.enrollmentDate,
         student.counselor,
-        String(student.documents),
+        String(student.documents?.length || 0),
         student.city ?? "",
         student.state ?? "",
         student.applicationStage ?? "",
@@ -158,6 +168,15 @@ export function StudentsPage() {
     window.URL.revokeObjectURL(url);
   };
 
+  const handleStudentSubmit = async (values: any) => {
+  try {
+    const response = await createStudent(values);
+    handleStudentCreated(response.data);
+  } catch (error) {
+    console.error("Failed to create student", error);
+  }
+};
+
   return (
     <div className="space-y-6">
       <Outlet />
@@ -169,14 +188,18 @@ export function StudentsPage() {
             Manage enrolled students and their information
           </p>
         </div>
+        <Button
+          className="bg-blue-600 text-white hover:bg-blue-700"
+          onClick={() => setDialogOpen(true)}
+        >
+          + Add Student
+        </Button>
+
         <StudentFormDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
           mode="create"
-          onStudentCreated={handleStudentCreated}
-          trigger={
-            <Button className="bg-blue-600 text-white hover:bg-blue-700">
-              + Add Student
-            </Button>
-          }
+          onSubmit={handleStudentSubmit}
         />
       </div>
 
@@ -196,9 +219,19 @@ export function StudentsPage() {
 
       <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-sm text-slate-600">
-          Showing <span className="font-semibold text-slate-900">{paginatedStudents.length}</span> of{" "}
-          <span className="font-semibold text-slate-900">{filteredStudents.length}</span> filtered students
-          from <span className="font-semibold text-slate-900">{students.length}</span> total records.
+          Showing{" "}
+          <span className="font-semibold text-slate-900">
+            {paginatedStudents.length}
+          </span>{" "}
+          of{" "}
+          <span className="font-semibold text-slate-900">
+            {filteredStudents.length}
+          </span>{" "}
+          filtered students from{" "}
+          <span className="font-semibold text-slate-900">
+            {students.length}
+          </span>{" "}
+          total records.
         </div>
         <Button type="button" variant="outline" onClick={exportStudents}>
           <Download className="mr-2 h-4 w-4" />

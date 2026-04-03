@@ -11,7 +11,12 @@ export const syncSeedStudents = async () => {
   const operations = studentSeedData.map((student) => ({
     updateOne: {
       filter: { email: student.email },
-      update: { $set: student },
+      update: {
+        $set: {
+          ...student,
+          documents: Array.isArray(student.documents) ? student.documents : [],
+        },
+      },
       upsert: true,
     },
   }));
@@ -27,4 +32,3 @@ export const syncSeedStudents = async () => {
 
   return { synced: true, count: studentSeedData.length };
 };
-
