@@ -19,7 +19,12 @@ import {
   SelectValue,
 } from "../../../../components/ui/select";
 
-type StudentDocumentStatus = "pending" | "received" | "verified" | "rejected";
+type StudentDocumentStatus =
+  | "Pending"
+  | "Uploaded"
+  | "Verified"
+  | "Rejected"
+  | "Not Applicable";
 
 type StudentDocument = {
   type: string;
@@ -44,7 +49,8 @@ type StudentFormValues = {
   applicationStage: string;
   dateOfBirth?: string;
   gender?: string;
-  address?: string;
+  addressLine1?: string;
+  addressLine2?: string;
   postalCode?: string;
   guardianName?: string;
   guardianPhone?: string;
@@ -56,6 +62,11 @@ type StudentFormValues = {
   graduationCourse?: string;
   graduationPercentage?: string;
   notes?: string;
+  alternatePhone?: string;
+  guardianRelation?: string;
+  country?: string;
+  nationality?: string;
+  bloodGroup?: string;
   documents: StudentDocument[];
 };
 
@@ -81,16 +92,17 @@ const DOCUMENT_TYPES = [
 ] as const;
 
 const DOCUMENT_STATUSES: StudentDocumentStatus[] = [
-  "pending",
-  "received",
-  "verified",
-  "rejected",
+  "Pending",
+  "Uploaded",
+  "Verified",
+  "Rejected",
+  "Not Applicable",
 ];
 
 const createEmptyDocument = (type = ""): StudentDocument => ({
   type,
   fileName: "",
-  status: "pending",
+  status: "Uploaded",
   url: "",
   notes: "",
   uploadedAt: "",
@@ -121,7 +133,13 @@ const defaultValues: StudentFormValues = {
   applicationStage: "lead",
   dateOfBirth: "",
   gender: "",
-  address: "",
+  addressLine1: "",
+  addressLine2: "",
+  alternatePhone: "",
+  guardianRelation: "",
+  country: "",
+  nationality: "",
+  bloodGroup: "",
   postalCode: "",
   guardianName: "",
   guardianPhone: "",
@@ -147,6 +165,12 @@ export function StudentFormDialog({
     () => ({
       ...defaultValues,
       ...initialValues,
+      enrollmentDate: initialValues?.enrollmentDate
+        ? initialValues.enrollmentDate.slice(0, 10)
+        : "",
+      dateOfBirth: initialValues?.dateOfBirth
+        ? initialValues.dateOfBirth.slice(0, 10)
+        : "",
       documents: buildInitialDocuments(initialValues?.documents),
     }),
     [initialValues],
@@ -203,6 +227,8 @@ export function StudentFormDialog({
 
     onSubmit({
       ...formValues,
+      addressLine1: formValues.addressLine1,
+      addressLine2: formValues.addressLine2,
       documents: formValues.documents.filter(
         (document) =>
           document.type.trim() ||
@@ -446,9 +472,9 @@ export function StudentFormDialog({
                 <Label htmlFor="address">Address</Label>
                 <Textarea
                   id="address"
-                  value={formValues.address}
+                  value={formValues.addressLine1}
                   onChange={(event) =>
-                    handleChange("address", event.target.value)
+                    handleChange("addressLine1", event.target.value)
                   }
                   rows={3}
                 />

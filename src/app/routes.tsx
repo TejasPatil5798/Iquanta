@@ -48,14 +48,11 @@ import { CntDesignManager } from "./pages/content/cnt-design-manager";
 import { CntBrand } from "./pages/content/cnt-brand";
 // SALES MODULE
 import { SalesWorkspace } from "./pages/sales/sales-workspace";
-import { SalesTargetAccounts } from "./pages/sales/sales-target-accounts";
-import { SalesProspectingAgent } from "./pages/sales/sales-prospecting-agent";
 import { SalesDocuments } from "./pages/sales/sales-documents";
 import { SalesMeetingsScheduler } from "./pages/sales/sales-meetings-scheduler";
 import { SalesSequences } from "./pages/sales/sales-sequences";
 import { SalesActivityFeed } from "./pages/sales/sales-activity-feed";
 import { SalesForecast } from "./pages/sales/sales-forecast";
-import { SalesCoachingPlaylists } from "./pages/sales/sales-coaching-playlists";
 import { SalesAnalytics } from "./pages/sales/sales-analytics";
 import { StudentPortalPage } from "./pages/admissions/student-portal/StudentPortalPage";
 // COMMERCE MODULE
@@ -178,14 +175,11 @@ export const router = createBrowserRouter([
       { path: "content/brand", element: withRoles(<CntBrand/>, ["admin", "teacher"]) },
       // Sales sub-routes
       { path: "sales/workspace", element: withRoles(<SalesWorkspace/>, ["admin"]) },
-      { path: "sales/target-accounts", element: withRoles(<SalesTargetAccounts/>, ["admin"]) },
-      { path: "sales/prospecting-agent", element: withRoles(<SalesProspectingAgent/>, ["admin"]) },
       { path: "sales/documents", element: withRoles(<SalesDocuments/>, ["admin"]) },
       { path: "sales/meetings-scheduler", element: withRoles(<SalesMeetingsScheduler/>, ["admin"]) },
       { path: "sales/sequences", element: withRoles(<SalesSequences/>, ["admin"]) },
       { path: "sales/activity-feed", element: withRoles(<SalesActivityFeed/>, ["admin"]) },
       { path: "sales/forecast", element: withRoles(<SalesForecast/>, ["admin"]) },
-      { path: "sales/coaching-playlists", element: withRoles(<SalesCoachingPlaylists/>, ["admin"]) },
       { path: "sales/analytics", element: withRoles(<SalesAnalytics/>, ["admin"]) },
       // Commerce sub-routes
       { path: "commerce/overview", element: withRoles(<ComOverview/>, ["admin"]) },
