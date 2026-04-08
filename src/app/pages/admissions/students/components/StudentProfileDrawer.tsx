@@ -21,7 +21,7 @@ export function StudentProfileDrawer({
 }) {
   return (
     <Drawer direction="right" open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="ml-auto h-full z-90 w-full sm:w-[95%] md:w-[80%] lg:w-[72%] xl:w-[68%] overflow-x-hidden overflow-y-auto">
+      <DrawerContent className="ml-auto z-100 h-full w-full sm:!max-w-[90vw] md:!max-w-[80vw] lg:!max-w-[75vw] xl:!max-w-[70vw] overflow-x-hidden overflow-y-auto">
         {" "}
         {student ? (
           <>
