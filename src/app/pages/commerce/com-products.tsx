@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { X, Upload, Link, Database, TrendingUp, FileText, Download, HelpCircle } from "lucide-react";
 
 export function ComProducts() {
   const images = [
@@ -9,114 +10,313 @@ export function ComProducts() {
   ];
 
   const [current, setCurrent] = useState(0);
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+
+  // Product form state
+  const [productName, setProductName] = useState("");
+  const [sku, setSku] = useState("");
+  const [description, setDescription] = useState("");
+  const [productType, setProductType] = useState("");
+  const [billingDetails, setBillingDetails] = useState("");
+  const [billingFrequency, setBillingFrequency] = useState("One-time");
 
   // Auto change images
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % images.length);
-    }, 2000); // change every 2 sec
-
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <div className="bg-gray-100 min-h-screen p-6 sm:p-10">
+  const handleCreateProduct = () => {
+    console.log("Product created:", { productName, sku, description, productType, billingDetails, billingFrequency });
+    alert("Product created successfully!");
+    setShowProductModal(false);
+    // Reset form
+    setProductName("");
+    setSku("");
+    setDescription("");
+    setProductType("");
+    setBillingDetails("");
+    setBillingFrequency("One-time");
+  };
 
+  const handleImportOption = (option: string) => {
+    alert(`Import option selected: ${option}`);
+    setShowImportModal(false);
+  };
+
+  return (
+    <div className="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8 lg:p-10">
       {/* ===== TOP TITLE ===== */}
-      <h1 className="text-2xl font-semibold text-gray-700 mb-6">
-        Products
-      </h1>
+      <h1 className="text-xl sm:text-2xl font-semibold text-gray-700 mb-6">Products</h1>
 
       {/* ===== MAIN SECTION ===== */}
-      <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-
-        {/* ===== LEFT CONTENT ===== */}
-        <div className="max-w-xl">
-
-          <h2 className="text-4xl font-bold text-gray-900 mb-6 leading-snug">
-            Create products and simplify <br />
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10">
+        {/* LEFT CONTENT */}
+        <div className="max-w-xl text-center lg:text-left">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-snug">
+            Create products and simplify <br className="hidden sm:block" />
             your billing workflow
           </h2>
 
-          {/* BULLETS */}
           <div className="space-y-4 mb-8">
-
-            <div className="flex items-start gap-3">
-              <div className="bg-gray-200 rounded-full p-2">→</div>
-              <p className="text-gray-700">
-                <span className="font-semibold">
-                  Organize and store your product data
-                </span>{" "}
+            <div className="flex items-start gap-3 justify-center lg:justify-start">
+              <div className="bg-gray-200 rounded-full p-2 flex-shrink-0">→</div>
+              <p className="text-gray-700 text-sm sm:text-base">
+                <span className="font-semibold">Organize and store your product data</span>{" "}
                 so your sales team can easily bill and get paid
               </p>
             </div>
-
-            <div className="flex items-start gap-3">
-              <div className="bg-gray-200 rounded-full p-2">→</div>
-              <p className="text-gray-700">
-                <span className="font-semibold">
-                  Add and reuse your products
-                </span>{" "}
+            <div className="flex items-start gap-3 justify-center lg:justify-start">
+              <div className="bg-gray-200 rounded-full p-2 flex-shrink-0">→</div>
+              <p className="text-gray-700 text-sm sm:text-base">
+                <span className="font-semibold">Add and reuse your products</span>{" "}
                 for sending deals, quotes, invoices, and payment links to customers
               </p>
             </div>
-
-            <div className="flex items-start gap-3">
-              <div className="bg-gray-200 rounded-full p-2">→</div>
-              <p className="text-gray-700">
-                <span className="font-semibold">
-                  Configure quantity-based pricing tiers
-                </span>{" "}
+            <div className="flex items-start gap-3 justify-center lg:justify-start">
+              <div className="bg-gray-200 rounded-full p-2 flex-shrink-0">→</div>
+              <p className="text-gray-700 text-sm sm:text-base">
+                <span className="font-semibold">Configure quantity-based pricing tiers</span>{" "}
                 and easily access in-depth sales performance reporting
               </p>
             </div>
-
           </div>
 
-          {/* BUTTONS */}
-          <div className="flex gap-4">
-            <button className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+            <button
+              onClick={() => setShowProductModal(true)}
+              className="bg-black text-white px-5 py-2 rounded-md hover:bg-gray-800 transition"
+            >
               Create a product
             </button>
-
-            <button className="border px-6 py-2 rounded-md hover:bg-gray-100">
+            <button
+              onClick={() => setShowImportModal(true)}
+              className="border px-5 py-2 rounded-md hover:bg-gray-100 transition"
+            >
               Import
             </button>
           </div>
-
         </div>
 
-      
-
-        {/* ===== RIGHT IMAGE CAROUSEL ===== */}
-<div className="w-full max-w-md bg-white border rounded-xl p-6 shadow-sm">
-
-  {/* IMAGE AREA */}
-  <div className="flex justify-center items-center h-[260px] w-full bg-gray-50 rounded-md overflow-hidden">
-
-    <img
-      src={images[current]}
-      alt="carousel"
-      className="max-h-full max-w-full object-contain transition-all duration-500"
-    />
-
-  </div>
-
-  {/* DOT INDICATORS */}
-  <div className="flex justify-center gap-2 mt-4">
-    {images.map((_, index) => (
-      <div
-        key={index}
-        className={`h-2 w-2 rounded-full ${
-          current === index ? "bg-orange-500" : "bg-gray-300"
-        }`}
-      ></div>
-    ))}
-  </div>
-
-</div>
-
+        {/* RIGHT IMAGE CAROUSEL */}
+        <div className="w-full max-w-md bg-white border rounded-xl p-4 sm:p-6 shadow-sm">
+          <div className="flex justify-center items-center h-[200px] sm:h-[260px] w-full bg-gray-50 rounded-md overflow-hidden">
+            <img
+              src={images[current]}
+              alt="carousel"
+              className="max-h-full max-w-full object-contain transition-all duration-500"
+            />
+          </div>
+          <div className="flex justify-center gap-2 mt-4">
+            {images.map((_, index) => (
+              <div
+                key={index}
+                className={`h-2 w-2 rounded-full transition-all ${
+                  current === index ? "bg-orange-500 w-3" : "bg-gray-300"
+                }`}
+              ></div>
+            ))}
+          </div>
+        </div>
       </div>
+
+      {/* ===== MODAL: Create a product (matching 1st screenshot) ===== */}
+      {showProductModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          onClick={() => setShowProductModal(false)}
+        >
+          <div
+            className="bg-white rounded-lg w-full max-w-md mx-4 mt-15 max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center border-b p-4">
+              <h2 className="text-xl font-semibold">Product information</h2>
+              <button onClick={() => setShowProductModal(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                  className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                  placeholder="Product name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">SKU</label>
+                <input
+                  type="text"
+                  value={sku}
+                  onChange={(e) => setSku(e.target.value)}
+                  className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                  placeholder="Stock Keeping Unit"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Product description</label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                  className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                  placeholder="Describe your product"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Product type</label>
+                <select
+                  value={productType}
+                  onChange={(e) => setProductType(e.target.value)}
+                  className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                >
+                  <option value="">Select type</option>
+                  <option>Service</option>
+                  <option>Physical good</option>
+                  <option>Digital good</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Billing details</label>
+                <input
+                  type="text"
+                  value={billingDetails}
+                  onChange={(e) => setBillingDetails(e.target.value)}
+                  className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                  placeholder="e.g., Monthly subscription"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Billing frequency</label>
+                <select
+                  value={billingFrequency}
+                  onChange={(e) => setBillingFrequency(e.target.value)}
+                  className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                >
+                  <option>One-time</option>
+                  <option>Recurring (monthly)</option>
+                  <option>Recurring (yearly)</option>
+                </select>
+              </div>
+            </div>
+            <div className="border-t p-4 flex justify-end gap-2">
+              <button
+                onClick={() => setShowProductModal(false)}
+                className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateProduct}
+                className="px-4 py-2 text-sm bg-black text-white rounded-md hover:bg-gray-800 transition"
+              >
+                Create product
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== MODAL: Import (matching 2nd screenshot) ===== */}
+      {showImportModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          onClick={() => setShowImportModal(false)}
+        >
+          <div
+            className="bg-white rounded-lg w-full max-w-2xl mx-4 mt-15 max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center border-b p-4">
+              <h2 className="text-xl font-semibold">Import a file</h2>
+              <button onClick={() => setShowImportModal(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-6">
+              {/* Import a file */}
+              <div className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer" onClick={() => handleImportOption("Import a file")}>
+                <div className="flex items-center gap-3">
+                  <Upload className="w-5 h-5 text-gray-600" />
+                  <div>
+                    <p className="font-medium text-gray-800">Import a file</p>
+                    <p className="text-sm text-gray-500">One-time import from a file—directly into your CRM.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sync from apps */}
+              <div className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer" onClick={() => handleImportOption("Sync from apps")}>
+                <div className="flex items-center gap-3">
+                  <Link className="w-5 h-5 text-gray-600" />
+                  <div>
+                    <p className="font-medium text-gray-800">Sync from apps</p>
+                    <p className="text-sm text-gray-500">Keep data synced between your CRM and external apps.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Transfer your data */}
+              <div className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer" onClick={() => handleImportOption("Transfer your data")}>
+                <div className="flex items-center gap-3">
+                  <Database className="w-5 h-5 text-gray-600" />
+                  <div>
+                    <p className="font-medium text-gray-800">Transfer your data</p>
+                    <p className="text-sm text-gray-500">Seamlessly transfer your data using the Smart Transfer tool.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Make sense of intent data */}
+              <div className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer" onClick={() => handleImportOption("Upgrade to Data Hub")}>
+                <div className="flex items-center gap-3">
+                  <TrendingUp className="w-5 h-5 text-gray-600" />
+                  <div>
+                    <p className="font-medium text-gray-800">Make sense of intent data</p>
+                    <p className="text-sm text-gray-500">Aggregate and score cross-channel engagement to uncover who’s ready to buy.</p>
+                    <span className="inline-block mt-1 text-xs text-blue-600">Upgrade to Data Hub</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Monitor your imports & syncs */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="font-medium text-gray-800 mb-2">Monitor your imports & syncs</p>
+                <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                  <span>File imports</span>
+                  <span>App syncs</span>
+                  <span>Data studio syncs</span>
+                </div>
+              </div>
+
+              {/* Get started with your first import */}
+              <div className="border-t pt-4">
+                <p className="font-medium text-gray-800 mb-2">Get started with your first import</p>
+                <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                  <li>Begin adding data to your CRM by <strong>importing a file</strong> (csv, xls, xlsx).</li>
+                  <li>Read our <strong>import set up guide</strong> that helps you prepare your data and avoid common mistakes.</li>
+                  <li><strong>Download a sample file</strong> to view recommended formats for contacts, companies, and more.</li>
+                </ul>
+                <button
+                  onClick={() => handleImportOption("Import a file (get started)")}
+                  className="mt-4 bg-black text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 transition"
+                >
+                  Import a file
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

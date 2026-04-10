@@ -2,8 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../../components
 
 type StudentDocument = {
   type?: string;
-  fileName?: string;
-  status?: string;
+  fileName?: string;  status?: string;
   url?: string;
   notes?: string;
   uploadedAt?: string;

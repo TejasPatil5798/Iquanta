@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { X, FileText, Repeat } from "lucide-react";
 
 export function ComInvoices() {
   const images = [
@@ -9,112 +10,136 @@ export function ComInvoices() {
   ];
 
   const [current, setCurrent] = useState(0);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   // Auto change images
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % images.length);
-    }, 2000); // change every 2 sec
-
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <div className="bg-gray-100 min-h-screen p-6 sm:p-10">
+  const handleCreateOption = (option: string) => {
+    alert(`Selected: ${option}`);
+    setShowCreateModal(false);
+  };
 
+  return (
+    <div className="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8 lg:p-10">
       {/* ===== TOP TITLE ===== */}
-      <h1 className="text-2xl font-semibold text-gray-700 mb-6">
-        Invoice
-      </h1>
+      <h1 className="text-xl sm:text-2xl font-semibold text-gray-700 mb-6">Invoice</h1>
 
       {/* ===== MAIN SECTION ===== */}
-      <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-
-        {/* ===== LEFT CONTENT ===== */}
-        <div className="max-w-xl">
-
-          <h2 className="text-4xl font-bold text-gray-900 mb-6 leading-snug">
-            send invoices to move from <br />
-            deal to payment in a few clicks 
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10">
+        {/* LEFT CONTENT */}
+        <div className="max-w-xl text-center lg:text-left">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-snug">
+            send invoices to move from <br className="hidden sm:block" />
+            deal to payment in a few clicks
           </h2>
 
-          {/* BULLETS */}
           <div className="space-y-4 mb-8">
-
-            <div className="flex items-start gap-3">
-              <div className="bg-gray-200 rounded-full p-2">→</div>
-              <p className="text-gray-700">
-                <span className="font-semibold">
-                  Report and bill from your CRM
-                </span>{" "}
-                to easily track invoice status and gain revenue insights alongside customer data 
+            <div className="flex items-start gap-3 justify-center lg:justify-start">
+              <div className="bg-gray-200 rounded-full p-2 flex-shrink-0">→</div>
+              <p className="text-gray-700 text-sm sm:text-base">
+                <span className="font-semibold">Report and bill from your CRM</span>{" "}
+                to easily track invoice status and gain revenue insights alongside customer data
               </p>
             </div>
-
-            <div className="flex items-start gap-3">
-              <div className="bg-gray-200 rounded-full p-2">→</div>
-              <p className="text-gray-700">
-                <span className="font-semibold">
-                  Automate your bookkeeping 
-                </span>{" "}
+            <div className="flex items-start gap-3 justify-center lg:justify-start">
+              <div className="bg-gray-200 rounded-full p-2 flex-shrink-0">→</div>
+              <p className="text-gray-700 text-sm sm:text-base">
+                <span className="font-semibold">Automate your bookkeeping</span>{" "}
                 with a two-way accounting sync for Quickbooks Online
               </p>
             </div>
-
-            <div className="flex items-start gap-3">
-              <div className="bg-gray-200 rounded-full p-2">→</div>
-              <p className="text-gray-700">
-                <span className="font-semibold">
-                  No hidden charges
-                </span>{" "}
-                and only pay transaction fees to collect online pyment
+            <div className="flex items-start gap-3 justify-center lg:justify-start">
+              <div className="bg-gray-200 rounded-full p-2 flex-shrink-0">→</div>
+              <p className="text-gray-700 text-sm sm:text-base">
+                <span className="font-semibold">No hidden charges</span>{" "}
+                and only pay transaction fees to collect online payment
               </p>
             </div>
-
           </div>
 
-          {/* BUTTONS */}
-          <div className="flex gap-4">
-            <button className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800">
-              Create 
+          <div className="flex justify-center lg:justify-start">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-black text-white px-5 py-2 rounded-md hover:bg-gray-800 transition"
+            >
+              Create
             </button>
-
-            
           </div>
-
         </div>
 
-      
-
-        {/* ===== RIGHT IMAGE CAROUSEL ===== */}
-<div className="w-full max-w-md bg-white border rounded-xl p-6 shadow-sm">
-
-  {/* IMAGE AREA */}
-  <div className="flex justify-center items-center h-[260px] w-full bg-gray-50 rounded-md overflow-hidden">
-
-    <img
-      src={images[current]}
-      alt="carousel"
-      className="max-h-full max-w-full object-contain transition-all duration-500"
-    />
-
-  </div>
-
-  {/* DOT INDICATORS */}
-  <div className="flex justify-center gap-2 mt-4">
-    {images.map((_, index) => (
-      <div
-        key={index}
-        className={`h-2 w-2 rounded-full ${
-          current === index ? "bg-orange-500" : "bg-gray-300"
-        }`}
-      ></div>
-    ))}
-  </div>
-
-</div>
-
+        {/* RIGHT IMAGE CAROUSEL */}
+        <div className="w-full max-w-md bg-white border rounded-xl p-4 sm:p-6 shadow-sm">
+          <div className="flex justify-center items-center h-[200px] sm:h-[260px] w-full bg-gray-50 rounded-md overflow-hidden">
+            <img
+              src={images[current]}
+              alt="carousel"
+              className="max-h-full max-w-full object-contain transition-all duration-500"
+            />
+          </div>
+          <div className="flex justify-center gap-2 mt-4">
+            {images.map((_, index) => (
+              <div
+                key={index}
+                className={`h-2 w-2 rounded-full transition-all ${
+                  current === index ? "bg-orange-500 w-3" : "bg-gray-300"
+                }`}
+              ></div>
+            ))}
+          </div>
+        </div>
       </div>
+
+      {/* ===== MODAL: Create Invoice Options ===== */}
+      {showCreateModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          onClick={() => setShowCreateModal(false)}
+        >
+          <div
+            className="bg-white rounded-lg w-full max-w-md mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center border-b p-4">
+              <h2 className="text-lg font-semibold">Create invoice</h2>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-3">
+              <button
+                onClick={() => handleCreateOption("Create one-time invoice")}
+                className="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition flex items-center gap-3"
+              >
+                <FileText className="w-5 h-5 text-gray-600" />
+                <div>
+                  <p className="font-medium text-gray-800">Create one-time invoice</p>
+                  <p className="text-xs text-gray-500">Single invoice for a one-time payment</p>
+                </div>
+              </button>
+              <button
+                onClick={() => handleCreateOption("Create recurring invoices")}
+                className="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition flex items-center gap-3"
+              >
+                <Repeat className="w-5 h-5 text-gray-600" />
+                <div>
+                  <p className="font-medium text-gray-800">Create recurring invoices</p>
+                  <p className="text-xs text-gray-500">Set up subscription billing</p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

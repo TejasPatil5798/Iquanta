@@ -1,96 +1,107 @@
-import React from "react";
+import React, { useState } from "react";
+import { X, ExternalLink, CreditCard, ShoppingCart, FileText, Receipt, Link, Calendar, Zap } from "lucide-react";
 
 export function ComOverview() {
-  return (
-    <div className="bg-gray-100 min-h-screen p-6 sm:p-10">
+  // Modal states
+  const [showQuotesModal, setShowQuotesModal] = useState(false);
+  const [showGenericModal, setShowGenericModal] = useState(false);
+  const [genericModalTitle, setGenericModalTitle] = useState("");
+  const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
+  const [showPaymentsModal, setShowPaymentsModal] = useState(false);
+  const [showCommerceGuideModal, setShowCommerceGuideModal] = useState(false);
 
+  const handleQuickLinkClick = (title: string) => {
+    if (title === "Quotes") {
+      setShowQuotesModal(true);
+    } else {
+      setGenericModalTitle(title);
+      setShowGenericModal(true);
+    }
+  };
+
+  const handleLearnMore = () => setShowLearnMoreModal(true);
+  const handleSetUpPayments = () => setShowPaymentsModal(true);
+  const handleCommerceGuide = () => setShowCommerceGuideModal(true);
+
+  return (
+    <div className="bg-gray-100 min-h-screen p-4 sm:p-6 md:p-8 lg:p-10">
       {/* ===== HEADER ===== */}
       <div className="mb-6">
-        <h1 className="text-4xl font-bold text-gray-800">Commerce Hub</h1>
-        <p className="text-lg text-gray-600 mt-2">Welcome !</p>
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-800">Commerce Hub</h1>
+        <p className="text-base sm:text-lg text-gray-600 mt-2">Welcome !</p>
       </div>
 
       {/* ===== QUICK LINKS ===== */}
-      <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border">
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">
-          Quick Links
-        </h2>
-
-        <div className="flex flex-wrap gap-6 text-blue-600 font-medium">
-          <button className="hover:underline">Quotes</button>
-          <button className="hover:underline">Products</button>
-          <button className="hover:underline">Invoices</button>
-          <button className="hover:underline">Payments</button>
-          <button className="hover:underline">Credit Memos</button>
-          <button className="hover:underline">Payment Links</button>
-          <button className="hover:underline">Subscriptions</button>
+      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-8 border">
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">Quick Links</h2>
+        <div className="flex flex-wrap gap-3 sm:gap-4 text-blue-600 font-medium">
+          {["Quotes", "Products", "Invoices", "Payments", "Credit Memos", "Payment Links", "Subscriptions"].map((item) => (
+            <button
+              key={item}
+              onClick={() => handleQuickLinkClick(item)}
+              className="hover:underline text-sm sm:text-base"
+            >
+              {item}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* ===== MAIN CONTENT ===== */}
-      <div className="bg-white rounded-xl shadow-sm border p-6 flex flex-col lg:flex-row items-center gap-8 mb-8">
-
-        {/* LEFT */}
+      <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 flex flex-col lg:flex-row items-center gap-6 lg:gap-8 mb-8">
         <div className="flex-1">
           <div className="text-orange-500 text-2xl mb-3">●</div>
-
-          <h2 className="text-2xl font-bold text-gray-800 mb-4 leading-snug">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 leading-snug">
             Streamline your revenue lifecycle with <br />
             Commerce Hub Professional
           </h2>
-
-          <p className="text-gray-600 mb-6 leading-relaxed">
+          <p className="text-gray-600 mb-6 leading-relaxed text-sm sm:text-base">
             Unlock AI-powered quoting, seamless approval workflows, advanced
             pricing, and give your customers 24/7 AI quote support using closing
             agent. Close deals faster and manage everything—from billing to
             payments—in one place.
           </p>
-
-          <button className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800">
+          <button
+            onClick={handleLearnMore}
+            className="bg-black text-white px-5 py-2 rounded-md hover:bg-gray-800 transition"
+          >
             Learn More
           </button>
         </div>
-
-        {/* RIGHT VIDEO */}
         <div className="flex-1 w-full">
           <div className="rounded-lg overflow-hidden shadow-md">
             <iframe
-              className="w-full h-[250px] sm:h-[300px] lg:h-[320px]"
+              className="w-full h-[200px] sm:h-[250px] lg:h-[300px]"
               src="https://www.youtube-nocookie.com/embed/qK_EQ-3BifM"
               title="Demo Video"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             ></iframe>
-
-            <div className="bg-black/70 text-white text-sm px-3 py-2">
-              3 minutes • Demo
-            </div>
+            <div className="bg-black/70 text-white text-xs sm:text-sm px-3 py-2">3 minutes • Demo</div>
           </div>
         </div>
       </div>
 
       {/* ===== ONLINE PAYMENTS SECTION ===== */}
-      <div className="bg-white rounded-xl shadow-sm border p-6 mb-8 flex flex-col lg:flex-row justify-between gap-6 items-center">
-
-        {/* LEFT TEXT */}
+      <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 mb-8 flex flex-col lg:flex-row justify-between gap-6 items-center">
         <div className="flex-1">
-          <h2 className="text-xl font-semibold text-gray-800 mb-3">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
             Get paid faster with online payments
           </h2>
-
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 mb-4 text-sm sm:text-base">
             Join more than 10,000 customers and enable online payments across
             all of Commerce Hub’s billing tools—quotes, invoices, subscriptions,
             and payment links.
           </p>
-
-          <button className="border px-5 py-2 rounded-md hover:bg-gray-100">
+          <button
+            onClick={handleSetUpPayments}
+            className="border px-4 py-2 rounded-md hover:bg-gray-100 transition"
+          >
             Set up online payments
           </button>
         </div>
-
-        {/* RIGHT LOGOS GRID (IMAGES) */}
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
+          {/* Logos – same as original */}
           {[
             "data:image/png;base64,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",
             "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg",
@@ -100,53 +111,195 @@ export function ComOverview() {
             "https://upload.wikimedia.org/wikipedia/commons/4/40/JCB_logo.svg",
             "data:image/png;base64,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",
             "data:image/png;base64,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",
+          
           ].map((logo, index) => (
-            <div
-              key={index}
-              className="border rounded-md p-3 bg-gray-50 flex items-center justify-center"
-            >
-              <img
-                src={logo}
-                alt="payment-logo"
-                className="h-6 object-contain"
-              />
+            <div key={index} className="border rounded-md p-2 sm:p-3 bg-gray-50 flex items-center justify-center">
+              <img src={logo} alt="payment-logo" className="h-5 sm:h-6 object-contain" />
             </div>
           ))}
         </div>
       </div>
 
       {/* ===== GET STARTED ===== */}
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">
-        Get started
-      </h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Get started</h2>
 
-      {/* ===== COMMERCE GUIDE ===== */}
-      <div className="bg-white rounded-xl shadow-sm border p-6">
-
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">
-          Your commerce guide
-        </h3>
-
-        <p className="text-gray-600 mb-6">
+      <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">Your commerce guide</h3>
+        <p className="text-gray-600 mb-6 text-sm sm:text-base">
           Set up the basics and try out your commerce tools to get started.
         </p>
-
-        {/* PROGRESS BAR */}
-        <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
-          <div className="bg-green-600 h-3 rounded-full w-[19%]"></div>
+        <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3 mb-3">
+          <div className="bg-green-600 h-2 sm:h-3 rounded-full w-[19%]"></div>
         </div>
-
-        {/* PROGRESS INFO */}
-        <div className="flex justify-between text-sm text-gray-600 mb-6">
+        <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-6">
           <span>2 of 11 tasks completed</span>
           <span className="font-semibold text-gray-800">19%</span>
         </div>
-
-        <button className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800">
+        <button
+          onClick={handleCommerceGuide}
+          className="bg-black text-white px-5 py-2 rounded-md hover:bg-gray-800 transition"
+        >
           Go to your commerce guide
         </button>
       </div>
 
+      {/* ===== MODALS ===== */}
+
+      {/* Quotes Modal (Legacy Quotes) */}
+      {showQuotesModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowQuotesModal(false)}>
+          <div className="bg-white rounded-lg w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center border-b p-4">
+              <h2 className="text-lg font-semibold">You are accessing Legacy Quotes</h2>
+              <button onClick={() => setShowQuotesModal(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-gray-700 text-sm">
+                You still have access to Legacy Quotes. Our new AI-powered CPQ offers enhanced features for faster, more efficient quote creation.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => alert("Learn more about AI-powered CPQ")}
+                  className="bg-black text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 transition"
+                >
+                  Learn more about AI-powered CPQ
+                </button>
+                <button
+                  onClick={() => alert("Continue to Legacy Quotes")}
+                  className="border border-gray-300 px-4 py-2 rounded-md text-sm hover:bg-gray-50 transition"
+                >
+                  Continue to Legacy Quotes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Generic Feature Modal (Products, Invoices, Payments, etc.) */}
+      {showGenericModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowGenericModal(false)}>
+          <div className="bg-white rounded-lg w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center border-b p-4">
+              <h2 className="text-lg font-semibold">{genericModalTitle}</h2>
+              <button onClick={() => setShowGenericModal(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5">
+              <p className="text-gray-700">This feature is coming soon. Stay tuned for updates!</p>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => setShowGenericModal(false)}
+                  className="px-4 py-2 bg-black text-white rounded-md text-sm hover:bg-gray-800 transition"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Learn More Modal */}
+      {showLearnMoreModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowLearnMoreModal(false)}>
+          <div className="bg-white rounded-lg w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center border-b p-4">
+              <h2 className="text-lg font-semibold">Commerce Hub Professional</h2>
+              <button onClick={() => setShowLearnMoreModal(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5">
+              <p className="text-gray-700 mb-3">Streamline your revenue lifecycle with advanced features:</p>
+              <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600">
+                <li>AI-powered quoting</li>
+                <li>Seamless approval workflows</li>
+                <li>Advanced pricing and billing</li>
+                <li>24/7 AI quote support</li>
+              </ul>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => setShowLearnMoreModal(false)}
+                  className="px-4 py-2 bg-black text-white rounded-md text-sm hover:bg-gray-800 transition"
+                >
+                  Got it
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Set up online payments Modal */}
+      {showPaymentsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowPaymentsModal(false)}>
+          <div className="bg-white rounded-lg w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center border-b p-4">
+              <h2 className="text-lg font-semibold">Set up online payments</h2>
+              <button onClick={() => setShowPaymentsModal(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5">
+              <p className="text-gray-700 mb-3">Connect your payment provider to start accepting payments online.</p>
+              <div className="space-y-2">
+                <button className="w-full text-left px-3 py-2 border rounded-md hover:bg-gray-50 flex items-center gap-2">
+                  <CreditCard className="w-4 h-4" /> Stripe
+                </button>
+                <button className="w-full text-left px-3 py-2 border rounded-md hover:bg-gray-50 flex items-center gap-2">
+                  <ShoppingCart className="w-4 h-4" /> PayPal
+                </button>
+                <button className="w-full text-left px-3 py-2 border rounded-md hover:bg-gray-50 flex items-center gap-2">
+                  <Zap className="w-4 h-4" /> Other provider
+                </button>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => setShowPaymentsModal(false)}
+                  className="px-4 py-2 bg-black text-white rounded-md text-sm hover:bg-gray-800 transition"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Commerce Guide Modal */}
+      {showCommerceGuideModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowCommerceGuideModal(false)}>
+          <div className="bg-white rounded-lg w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center border-b p-4">
+              <h2 className="text-lg font-semibold">Your commerce guide</h2>
+              <button onClick={() => setShowCommerceGuideModal(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5">
+              <p className="text-gray-700 mb-3">Complete these tasks to get started:</p>
+              <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600">
+                <li>Set up your first product</li>
+                <li>Connect payment provider</li>
+                <li>Create a quote template</li>
+                <li>Invite team members</li>
+              </ul>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => setShowCommerceGuideModal(false)}
+                  className="px-4 py-2 bg-black text-white rounded-md text-sm hover:bg-gray-800 transition"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

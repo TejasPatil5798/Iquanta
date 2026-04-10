@@ -1,511 +1,308 @@
-import React from "react";
-const Check = () => (
-  <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-    ✓
-  </div>
-);
+import React, { useEffect, useMemo, useState } from "react";
+import { BookOpen, Copy, Download, LayoutGrid, List, Plus, Search, Star, Trash2, X } from "lucide-react";
+import { Modal } from "antd";
 
-function FeatureRow({ title, free, pro }: any) {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 border-b hover:bg-gray-50 transition">
-      <div className="p-6 font-medium">{title}</div>
-      <div className="p-6 text-center md:border-l text-gray-600">{free}</div>
-      <div className="p-6 flex justify-center md:border-l">{pro}</div>
-    </div>
-  );
+type PlaybookStatus = "Active" | "Draft";
+
+interface Playbook {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  status: PlaybookStatus;
+  owner: string;
+  sections: number;
+  lastUsed: string;
+  usageCount: number;
+  rating: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
-function SectionTable({ title, data }: any) {
-  return (
-    <div className="mt-28">
-      <h2 className="text-4xl font-bold text-gray-900 mb-12">{title}</h2>
+const STORAGE_KEY = "iquanta.crm.playbooks";
+const OWNERS = ["John Smith", "Sarah Johnson", "Mike Davis", "Emily Brown"];
+const TYPES = ["Sales", "Support", "Onboarding", "Marketing"];
+const DEFAULT_PLAYBOOKS: Playbook[] = [
+  { id: "1", name: "Sales Discovery Call", description: "Guide for effective discovery calls.", type: "Sales", status: "Active", owner: "John Smith", sections: 8, lastUsed: "2026-04-08T10:30:00.000Z", usageCount: 156, rating: 4.8, createdAt: "2026-01-15", updatedAt: "2026-03-20" },
+  { id: "2", name: "Product Demo Script", description: "Step-by-step guide for product demonstrations.", type: "Sales", status: "Active", owner: "Sarah Johnson", sections: 12, lastUsed: "2026-04-07T14:20:00.000Z", usageCount: 234, rating: 4.9, createdAt: "2025-11-20", updatedAt: "2026-04-01" },
+  { id: "3", name: "Support Response Pack", description: "Templates and escalation guidance for support agents.", type: "Support", status: "Draft", owner: "Emily Brown", sections: 10, lastUsed: "", usageCount: 0, rating: 0, createdAt: "2026-03-01", updatedAt: "2026-04-05" },
+];
 
-      <div className="border border-gray-300 rounded-lg overflow-hidden">
-        {data.map((row: any, i: number) => (
-          <FeatureRow key={i} {...row} />
-        ))}
-      </div>
-    </div>
-  );
+interface PlaybookForm {
+  name: string;
+  description: string;
+  type: string;
+  status: PlaybookStatus;
+  owner: string;
+  sections: string;
+  rating: string;
 }
 
-/* =========================
-   MAIN PAGE
-========================= */
+const emptyForm = (): PlaybookForm => ({
+  name: "",
+  description: "",
+  type: TYPES[0],
+  status: "Draft",
+  owner: OWNERS[0],
+  sections: "6",
+  rating: "4.5",
+});
+
+const formatDate = (value: string) => (value ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Never");
 
 export function Playbooks() {
-  /* ===== DATA (Converted from your static table) ===== */
+  const [playbooks, setPlaybooks] = useState<Playbook[]>(() => {
+    if (typeof window === "undefined") return DEFAULT_PLAYBOOKS;
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    if (!saved) return DEFAULT_PLAYBOOKS;
+    try {
+      return JSON.parse(saved) as Playbook[];
+    } catch {
+      return DEFAULT_PLAYBOOKS;
+    }
+  });
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState<"All" | PlaybookStatus>("All");
+  const [selectedPlaybookId, setSelectedPlaybookId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPlaybookId, setEditingPlaybookId] = useState<string | null>(null);
+  const [form, setForm] = useState<PlaybookForm>(emptyForm);
 
-  const buildPipelineData = [
-    { title: "Help Desk Workspace", free: "", pro: <Check /> },
-    {
-      title: "Facebook Messenger integration",
-      free: "Send simple messages",
-      pro: "Advanced bot + reporting",
-    },
-    { title: "Custom Channels API", free: "", pro: <Check /> },
-    { title: "Help desk automation", free: "", pro: "Up to 300 workflows" },
-    { title: "WhatsApp integration", free: "", pro: "1000 msgs/month" },
-    { title: "SLAs", free: "", pro: <Check /> },
-    {
-      title: "Reporting dashboard",
-      free: "10 dashboards",
-      pro: "75 dashboards",
-    },
-    { title: "Service analytics", free: "", pro: <Check /> },
-    { title: "Insights dashboard", free: "", pro: <Check /> },
-    { title: "Live chat", free: "With branding", pro: "No branding" },
-    { title: "Calling", free: "", pro: "3000 minutes" },
-    { title: "Email templates", free: "3 templates", pro: "5000 templates" },
-  ];
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(playbooks));
+  }, [playbooks]);
 
-  const closeDealsData = [
-    { title: "Customer success workspace", free: "", pro: <Check /> },
-    { title: "Health Score", free: "", pro: "1 score" },
-    { title: "Projects", free: <Check />, pro: <Check /> },
-    { title: "Custom surveys", free: "", pro: "100 surveys" },
-    { title: "Post-chat feedback", free: "", pro: <Check /> },
-    { title: "Goals", free: "", pro: "Template goals" },
-    { title: "Playbooks", free: "", pro: "Create up to 5 playbooks" },
-    { title: "Meeting scheduling", free: "1 link", pro: "1000 links" },
-    { title: "Sequences", free: "", pro: "5000 sequences" },
-  ];
+  const filteredPlaybooks = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    return playbooks.filter((playbook) => {
+      const matchesSearch = !term || playbook.name.toLowerCase().includes(term) || playbook.description.toLowerCase().includes(term);
+      const matchesType = typeFilter === "All" || playbook.type === typeFilter;
+      const matchesStatus = statusFilter === "All" || playbook.status === statusFilter;
+      return matchesSearch && matchesType && matchesStatus;
+    });
+  }, [playbooks, searchTerm, typeFilter, statusFilter]);
+
+  const selectedPlaybook = playbooks.find((playbook) => playbook.id === selectedPlaybookId) ?? null;
+
+  const openCreate = () => {
+    setEditingPlaybookId(null);
+    setForm(emptyForm());
+    setIsModalOpen(true);
+  };
+
+  const openEdit = (playbook: Playbook) => {
+    setEditingPlaybookId(playbook.id);
+    setForm({
+      name: playbook.name,
+      description: playbook.description,
+      type: playbook.type,
+      status: playbook.status,
+      owner: playbook.owner,
+      sections: String(playbook.sections),
+      rating: String(playbook.rating || 4.5),
+    });
+    setIsModalOpen(true);
+  };
+
+  const savePlaybook = () => {
+    if (!form.name.trim()) return;
+    const today = new Date().toISOString();
+    const nextPlaybook: Playbook = {
+      id: editingPlaybookId ?? String(Date.now()),
+      name: form.name.trim(),
+      description: form.description.trim(),
+      type: form.type,
+      status: form.status,
+      owner: form.owner,
+      sections: Number(form.sections) || 0,
+      lastUsed: playbooks.find((playbook) => playbook.id === editingPlaybookId)?.lastUsed ?? "",
+      usageCount: playbooks.find((playbook) => playbook.id === editingPlaybookId)?.usageCount ?? 0,
+      rating: Number(form.rating) || 0,
+      createdAt: playbooks.find((playbook) => playbook.id === editingPlaybookId)?.createdAt ?? today,
+      updatedAt: today,
+    };
+
+    setPlaybooks((current) =>
+      editingPlaybookId
+        ? current.map((playbook) => (playbook.id === editingPlaybookId ? nextPlaybook : playbook))
+        : [nextPlaybook, ...current]
+    );
+    setSelectedPlaybookId(nextPlaybook.id);
+    setIsModalOpen(false);
+  };
+
+  const deletePlaybook = (playbookId: string) => {
+    setPlaybooks((current) => current.filter((playbook) => playbook.id !== playbookId));
+    if (selectedPlaybookId === playbookId) setSelectedPlaybookId(null);
+  };
+
+  const duplicatePlaybook = (playbook: Playbook) => {
+    const now = new Date().toISOString();
+    const copy: Playbook = {
+      ...playbook,
+      id: String(Date.now()),
+      name: `${playbook.name} Copy`,
+      status: "Draft",
+      usageCount: 0,
+      lastUsed: "",
+      createdAt: now,
+      updatedAt: now,
+    };
+    setPlaybooks((current) => [copy, ...current]);
+  };
+
+  const usePlaybook = (playbookId: string) => {
+    const now = new Date().toISOString();
+    setPlaybooks((current) =>
+      current.map((playbook) =>
+        playbook.id === playbookId
+          ? { ...playbook, usageCount: playbook.usageCount + 1, lastUsed: now, status: "Active" }
+          : playbook
+      )
+    );
+  };
 
   return (
-    <div className="bg-gray-50">
-      {/* ================= HERO ================= */}
-      <div className="min-h-screen flex items-center">
-        <div className="max-w-7xl mx-auto w-full px-6 flex items-center gap-12">
-          {/* LEFT */}
-          <div className="flex-1">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Keep your team aligned
-            </h1>
-
-            <p className="text-gray-600 mb-6">
-              Build a library of sales best practices and resources.
-            </p>
-
-            <p className="text-sm text-gray-500 mb-8">
-              Unlock this and more with Sales Hub Professional.
-            </p>
-
-            <div className="flex gap-4">
-              <button className="bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800">
-                Talk to Sales
-              </button>
-
-              <button className="border border-gray-400 px-6 py-3 rounded-md hover:bg-gray-100">
-                Start 14-day trial
-              </button>
-            </div>
-
-            <p className="text-xs text-gray-400 mt-2">
-              No commitment or credit card required.
-            </p>
+    <div className="min-h-screen bg-[#f8f9fa]">
+      <div className="border-b border-gray-200 bg-white px-6 py-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Playbooks</h1>
+            <p className="text-sm text-gray-500">Create, reuse, and refine repeatable team workflows.</p>
           </div>
-
-          {/* RIGHT */}
-          <div className="flex-1 flex justify-center">
-            <img
-              src="https://static.hsappstatic.net/upgrade-page-ui/static-1.4337/images/locked-nav-items/playbooks/playbooks-header-EN.png"
-              className="w-[420px] rounded-lg shadow-lg border"
-            />
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => setViewMode("grid")} className={`rounded-md border px-3 py-2 text-sm ${viewMode === "grid" ? "border-gray-900 bg-gray-900 text-white" : "border-gray-300 bg-white text-gray-700"}`}><span className="inline-flex items-center gap-2"><LayoutGrid size={14} />Grid</span></button>
+            <button onClick={() => setViewMode("list")} className={`rounded-md border px-3 py-2 text-sm ${viewMode === "list" ? "border-gray-900 bg-gray-900 text-white" : "border-gray-300 bg-white text-gray-700"}`}><span className="inline-flex items-center gap-2"><List size={14} />List</span></button>
+            <button onClick={openCreate} className="inline-flex items-center gap-2 rounded-md bg-[#ff7a59] px-4 py-2 text-sm font-medium text-white"><Plus size={16} />Create playbook</button>
           </div>
         </div>
       </div>
 
-      {/* ================= TITLE ================= */}
-      <section className="text-center px-6 py-16 max-w-4xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold">
-          Set up your team for success with sales enablement content
-        </h2>
-      </section>
-
-      {/* ================= FEATURES ================= */}
-      <section className="grid md:grid-cols-2 gap-10 items-center px-6 py-20 max-w-6xl mx-auto">
-        <img
-          src="https://static.hsappstatic.net/upgrade-page-ui/static-1.4337/images/locked-nav-items/playbooks/playbooks-body1-EN.png"
-          className="rounded-lg shadow"
-        />
-        <div>
-          <h2 className="text-xl font-semibold mb-4">
-            Equip your team with playbooks
-          </h2>
-          <p className="text-gray-600">
-            Access sales content inside CRM instantly.
-          </p>
-        </div>
-      </section>
-
-      {/* ===== TABLE (ONE SINGLE BOX) ===== */}
-      <div className="border border-gray-300 rounded-lg overflow-hidden">
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6 font-medium">Help Desk Workspace</div>
-          <div className="p-6 text-center text-gray-500 md:border-l"></div>
-          <div className="p-6 flex justify-center md:border-l">
-            <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-              ✓
-            </div>
+      <div className="border-b border-gray-200 bg-white px-6 py-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search playbooks" className="w-full rounded-md border border-gray-300 py-2 pl-9 pr-10 text-sm outline-none focus:border-[#ff7a59]" />
+            {searchTerm && <button onClick={() => setSearchTerm("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"><X size={14} /></button>}
           </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">Facebook Messenger integration</div>
-          <div className="p-6 text-center text-gray-500 md:border-l">
-            Send and receive simple messages and quick replies
-          </div>
-          <div className="p-6 text-center text-gray-500 md:border-l">
-            Includes advanced Messenger bot branching and advanced reporting
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">Custom Channels API</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 flex justify-center md:border-l">
-            <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-              ✓
-            </div>
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">Help desk automation</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 text-center text-gray-500 md:border-l">
-            Up to 300 workflows.
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">WhatsApp integration</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 text-center text-gray-500 md:border-l">
-            Up to 1,000 messages per month
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6 font-medium">Breeze Customer Agent</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 text-center text-gray-500 md:border-l">
-            100 HubSpot Credits per conversation
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6 font-medium">Knowledge base</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 text-center text-gray-500 md:border-l">
-            1 knowledge base per account with up to 2,000 articles.
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">Knowledge base single sign-on</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 text-center text-gray-600 md:border-l">
-            Up to 2 access groups for private knowledge base
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6 font-medium">Customer portal</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 text-center text-gray-600 md:border-l">
-            Up to 2 access groups for customer portal
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6 font-medium">SLAs</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 flex justify-center md:border-l">
-            <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-              ✓
-            </div>
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6 font-medium">Reporting dashboard</div>
-          <div className="p-6 text-center md:border-l">10 dashboards</div>
-          <div className="p-6 text-center md:border-l">75 dashboards</div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">Service analytics</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 flex justify-center items-center md:border-l">
-            <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-              ✓
-            </div>
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">Insights dashboard</div>
-          <div className="p-6 md:border-l"></div>
-
-          <div className="p-6 flex justify-center items-center md:border-l">
-            <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-              ✓
-            </div>
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6 font-medium">Live chat</div>
-          <div className="p-6 text-center md:border-l">
-            Includes HubSpot branding
-          </div>
-          <div className="p-6 text-center md:border-l">
-            Remove HubSpot branding
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">Conversational bots</div>
-          <div className="p-6 text-center md:border-l">Limited features</div>
-          <div className="p-6 text-center md:border-l">Additional features</div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">Logged-in visitor identification</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 flex justify-center items-center md:border-l">
-            <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-              ✓
-            </div>
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">Draggable chat widget</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 flex justify-center items-center md:border-l">
-            <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-              ✓
-            </div>
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6 font-medium">Calling</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 text-center md:border-l">3,000 minutes</div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">Call transcription and coaching</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 text-center md:border-l">
-            750 hrs transcription/month
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">Coaching Playlists</div>
-          <div className="p-6 md:border-l"></div>
-
-          <div className="p-6 flex justify-center items-center md:border-l">
-            <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-              ✓
-            </div>
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6 font-medium">1-to-1 email</div>
-          <div className="p-6 text-center md:border-l">Includes branding</div>
-          <div className="p-6 text-center md:border-l">Branding removed</div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">1:1 video messaging</div>
-          <div className="p-6 md:border-l"></div>
-          <div className="p-6 flex justify-center items-center md:border-l">
-            <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-              ✓
-            </div>
-          </div>
-        </div>
-
-        {/* ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-          <div className="p-6">Canned snippets</div>
-          <div className="p-6 text-center md:border-l">Up to 3</div>
-          <div className="p-6 text-center md:border-l">Up to 5,000</div>
-        </div>
-
-        {/* LAST ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3">
-          <div className="p-6">Email templates</div>
-          <div className="p-6 text-center md:border-l">3 templates</div>
-          <div className="p-6 text-center md:border-l">5,000 templates</div>
-        </div>
-      </div>
-      {/* ===== SECTION 6 : Close Deals ===== */}
-      <div className="mt-28">
-        {/* HEADER */}
-        <h2 className="text-4xl font-bold text-gray-900 mb-12">Close Deals</h2>
-
-        {/* TABLE BOX */}
-        <div className="border border-gray-300 rounded-lg overflow-hidden">
-          {/* ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-            <div className="p-6 font-medium">Customer success workspace</div>
-            <div className="p-6 md:border-l"></div>
-            <div className="p-6 flex justify-center items-center md:border-l">
-              <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-                ✓
-              </div>
-            </div>
-          </div>
-
-          {/* ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-            <div className="p-6">Health Score</div>
-            <div className="p-6 md:border-l"></div>
-            <div className="p-6 text-center md:border-l">1 score</div>
-          </div>
-
-          {/* ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-            <div className="p-6">Projects</div>
-            <div className="p-6 flex justify-center items-center md:border-l">
-              <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-                ✓
-              </div>
-            </div>
-            <div className="p-6 flex justify-center items-center md:border-l">
-              <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-                ✓
-              </div>
-            </div>
-          </div>
-
-          {/* ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-            <div className="p-6 font-medium">Customer feedback surveys</div>
-            <div className="p-6 md:border-l"></div>
-            <div className="p-6 text-center md:border-l">
-              50 NPS surveys, 50 CES surveys, and 100 CSAT surveys
-            </div>
-          </div>
-
-          {/* ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-            <div className="p-6">Feedback Topics</div>
-            <div className="p-6 md:border-l"></div>
-            <div className="p-6 text-center md:border-l">
-              This feature does not use HubSpot Credits at this time.
-            </div>
-          </div>
-
-          {/* ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-            <div className="p-6">Custom surveys</div>
-            <div className="p-6 md:border-l"></div>
-            <div className="p-6 text-center md:border-l px-6">
-              100 custom surveys. Add unlimited questions, use diverse question
-              types (star ratings, radio select, text fields), and easily share
-              your survey as a link in an email.
-            </div>
-          </div>
-
-          {/* LAST ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-3">
-            <div className="p-6">Post-chat feedback</div>
-            <div className="p-6 md:border-l"></div>
-            <div className="p-6 flex justify-center items-center md:border-l">
-              <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-                ✓
-              </div>
-            </div>
-          </div>
-          {/* ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-3 border-t border-b">
-            <div className="p-6 font-medium">
-              Repeating tasks and task queues
-            </div>
-            <div className="p-6 md:border-l"></div>
-            <div className="p-6 flex justify-center items-center md:border-l">
-              <div className="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center">
-                ✓
-              </div>
-            </div>
-          </div>
-
-          {/* ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-            <div className="p-6 font-medium">Goals</div>
-            <div className="p-6 md:border-l"></div>
-            <div className="p-6 text-center md:border-l">Template goals</div>
-          </div>
-
-          {/* ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-            <div className="p-6 font-medium">Playbooks</div>
-            <div className="p-6 md:border-l"></div>
-            <div className="p-6 text-center md:border-l">
-              Create up to 5 playbooks, and capture notes in playbooks
-            </div>
-          </div>
-
-          {/* ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-            <div className="p-6 font-medium">Meeting scheduling</div>
-            <div className="p-6 text-center md:border-l">
-              Maximum of 1 personal meetings link <br />
-              Includes HubSpot branding
-            </div>
-            <div className="p-6 text-center md:border-l">
-              1,000 personal & team meetings links <br />
-              Remove HubSpot branding
-            </div>
-          </div>
-
-          {/* ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b">
-            <div className="p-6 font-medium">Sequences</div>
-            <div className="p-6 md:border-l"></div>
-            <div className="p-6 text-center md:border-l">
-              5,000 sequences per account, and up to 500 email sends/user/day.
-            </div>
+          <div className="flex flex-wrap gap-2">
+            <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700">
+              <option value="All">All types</option>
+              {TYPES.map((type) => <option key={type}>{type}</option>)}
+            </select>
+            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as "All" | PlaybookStatus)} className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700">
+              <option value="All">All statuses</option>
+              <option value="Active">Active</option>
+              <option value="Draft">Draft</option>
+            </select>
+            <div className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">{filteredPlaybooks.length} playbooks</div>
           </div>
         </div>
       </div>
-      <div className="text-center text-gray-600 mt-8">
-        View the{" "}
-        <span className="text-teal-600 font-medium cursor-pointer">
-          Product & Services Catalog ↗
-        </span>{" "}
-        for full technical limits and definitions
+
+      <div className="p-6">
+        {viewMode === "grid" ? (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {filteredPlaybooks.map((playbook) => (
+              <div key={playbook.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#ff7a59] to-[#ff9a7b] text-white"><BookOpen size={20} /></div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900">{playbook.name}</h3>
+                      <p className="text-xs text-gray-500">{playbook.owner}</p>
+                    </div>
+                  </div>
+                  <span className={`rounded-full px-2 py-1 text-xs font-medium ${playbook.status === "Active" ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-700"}`}>{playbook.status}</span>
+                </div>
+                <p className="mb-4 text-sm text-gray-600">{playbook.description}</p>
+                <div className="mb-4 flex items-center justify-between text-xs text-gray-500">
+                  <span>{playbook.type}</span>
+                  <span>{playbook.sections} sections</span>
+                  <span>{playbook.usageCount} uses</span>
+                </div>
+                <div className="mb-4 flex items-center justify-between text-xs text-gray-500">
+                  <span className="inline-flex items-center gap-1"><Star size={12} className="fill-current text-yellow-400" />{playbook.rating || "-"}</span>
+                  <span>Last used: {formatDate(playbook.lastUsed)}</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => { setSelectedPlaybookId(playbook.id); }} className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700">View</button>
+                  <button onClick={() => usePlaybook(playbook.id)} className="rounded-md bg-gray-900 px-3 py-2 text-sm text-white">Use</button>
+                  <button onClick={() => openEdit(playbook)} className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700">Edit</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+            <table className="w-full">
+              <thead><tr className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500"><th className="px-4 py-3">Name</th><th className="px-4 py-3">Type</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Owner</th><th className="px-4 py-3">Usage</th><th className="px-4 py-3">Rating</th><th className="px-4 py-3">Updated</th><th className="px-4 py-3">Actions</th></tr></thead>
+              <tbody className="divide-y divide-gray-200 text-sm">
+                {filteredPlaybooks.map((playbook) => (
+                  <tr key={playbook.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 font-medium text-[#ff7a59]">{playbook.name}</td>
+                    <td className="px-4 py-3">{playbook.type}</td>
+                    <td className="px-4 py-3">{playbook.status}</td>
+                    <td className="px-4 py-3">{playbook.owner}</td>
+                    <td className="px-4 py-3">{playbook.usageCount}</td>
+                    <td className="px-4 py-3">{playbook.rating || "-"}</td>
+                    <td className="px-4 py-3">{formatDate(playbook.updatedAt)}</td>
+                    <td className="px-4 py-3"><div className="flex gap-2"><button onClick={() => setSelectedPlaybookId(playbook.id)} className="text-sm text-gray-600">View</button><button onClick={() => openEdit(playbook)} className="text-sm text-gray-600">Edit</button><button onClick={() => deletePlaybook(playbook.id)} className="text-sm text-red-500">Delete</button></div></td>
+                  </tr>
+                ))}
+                {filteredPlaybooks.length === 0 && <tr><td colSpan={8} className="px-4 py-10 text-center text-sm text-gray-500">No playbooks match the current filters.</td></tr>}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
+      <Modal title={selectedPlaybook?.name} open={!!selectedPlaybook} onCancel={() => setSelectedPlaybookId(null)} footer={null} width={720} destroyOnHidden>
+        {selectedPlaybook && (
+          <div className="space-y-5 pt-2">
+            <p className="text-sm text-gray-600">{selectedPlaybook.description}</p>
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <div className="rounded-lg bg-gray-50 p-4 text-center"><p className="text-2xl font-semibold text-gray-900">{selectedPlaybook.sections}</p><p className="text-xs text-gray-500">Sections</p></div>
+              <div className="rounded-lg bg-gray-50 p-4 text-center"><p className="text-2xl font-semibold text-gray-900">{selectedPlaybook.usageCount}</p><p className="text-xs text-gray-500">Uses</p></div>
+              <div className="rounded-lg bg-gray-50 p-4 text-center"><p className="text-2xl font-semibold text-gray-900">{selectedPlaybook.rating || "-"}</p><p className="text-xs text-gray-500">Rating</p></div>
+              <div className="rounded-lg bg-gray-50 p-4 text-center"><p className="text-sm font-semibold text-gray-900">{formatDate(selectedPlaybook.lastUsed)}</p><p className="text-xs text-gray-500">Last used</p></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div><p className="text-xs text-gray-500">Owner</p><p className="font-medium text-gray-900">{selectedPlaybook.owner}</p></div>
+              <div><p className="text-xs text-gray-500">Type</p><p className="font-medium text-gray-900">{selectedPlaybook.type}</p></div>
+              <div><p className="text-xs text-gray-500">Created</p><p className="font-medium text-gray-900">{formatDate(selectedPlaybook.createdAt)}</p></div>
+              <div><p className="text-xs text-gray-500">Updated</p><p className="font-medium text-gray-900">{formatDate(selectedPlaybook.updatedAt)}</p></div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => usePlaybook(selectedPlaybook.id)} className="rounded-md bg-[#ff7a59] px-4 py-2 text-sm font-medium text-white">Use playbook</button>
+              <button onClick={() => duplicatePlaybook(selectedPlaybook)} className="inline-flex items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700"><Copy size={14} />Duplicate</button>
+              <button onClick={() => openEdit(selectedPlaybook)} className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700">Edit</button>
+              <button onClick={() => deletePlaybook(selectedPlaybook.id)} className="inline-flex items-center gap-2 rounded-md border border-red-200 px-4 py-2 text-sm text-red-600"><Trash2 size={14} />Delete</button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal title={editingPlaybookId ? "Edit playbook" : "Create playbook"} open={isModalOpen} onCancel={() => setIsModalOpen(false)} onOk={savePlaybook} okText={editingPlaybookId ? "Save changes" : "Create playbook"} destroyOnHidden>
+        <div className="space-y-4 pt-2">
+          <label className="block text-sm text-gray-700">Playbook name<input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" /></label>
+          <label className="block text-sm text-gray-700">Description<textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={4} className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" /></label>
+          <div className="grid grid-cols-2 gap-4">
+            <label className="block text-sm text-gray-700">Type<select value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })} className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2">{TYPES.map((type) => <option key={type}>{type}</option>)}</select></label>
+            <label className="block text-sm text-gray-700">Status<select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as PlaybookStatus })} className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"><option value="Draft">Draft</option><option value="Active">Active</option></select></label>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <label className="block text-sm text-gray-700">Owner<select value={form.owner} onChange={(event) => setForm({ ...form, owner: event.target.value })} className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2">{OWNERS.map((owner) => <option key={owner}>{owner}</option>)}</select></label>
+            <label className="block text-sm text-gray-700">Sections<input type="number" min="0" value={form.sections} onChange={(event) => setForm({ ...form, sections: event.target.value })} className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" /></label>
+            <label className="block text-sm text-gray-700">Rating<input type="number" min="0" max="5" step="0.1" value={form.rating} onChange={(event) => setForm({ ...form, rating: event.target.value })} className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" /></label>
+          </div>
+          {editingPlaybookId && <button onClick={() => deletePlaybook(editingPlaybookId)} className="inline-flex items-center gap-2 text-sm text-red-600"><Trash2 size={14} />Delete this playbook</button>}
+        </div>
+      </Modal>
     </div>
   );
 }
+
+export default Playbooks;
