@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../..
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../components/ui/dialog";
 import { Input } from "../../components/ui/input";
 import { Textarea } from "../../components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { Bot, Plus, Search, Sparkles, Wand2 } from "lucide-react";
 import { agentActivityFeed, agentTemplates, type AgentActivity, type AgentTemplate } from "../data-management-data";
 
@@ -99,7 +100,7 @@ export function DataAgent() {
                   key={template.id}
                   type="button"
                   onClick={() => launchTemplate(template)}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-slate-300 hover:bg-white"
+                  className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-slate-300 hover:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-200 focus:outline-none"
                 >
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <Badge variant="outline">{template.category}</Badge>
@@ -135,7 +136,7 @@ export function DataAgent() {
                     <p className="font-medium text-slate-900">{activity.title}</p>
                     <Badge
                       variant={activity.status === "Completed" ? "secondary" : activity.status === "Running" ? "default" : "outline"}
-                      className={activity.status === "Running" ? "bg-amber-500 text-white" : ""}
+                      className={activity.status === "Running" ? "bg-amber-500 text-white" : undefined}
                     >
                       {activity.status}
                     </Badge>
@@ -156,13 +157,13 @@ export function DataAgent() {
               <CardTitle>Quick actions</CardTitle>
               <CardDescription>One-click actions to keep your data clean and ready.</CardDescription>
             </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-3">
+            <CardContent className="grid gap-4 md:grid-cols-2">
               {[
                 "Research account fit",
                 "Backfill missing owner notes",
                 "Prepare handoff summary",
               ].map((label) => (
-                <Button key={label} variant="outline" className="h-auto justify-start rounded-2xl p-4 text-left" onClick={() => toast.success(`${label} added to queue`)}>
+                <Button key={label} variant="outline" className="h-auto rounded-2xl p-4 text-center" onClick={() => toast.success(`${label} added to queue`)}>
                   {label}
                 </Button>
               ))}
@@ -196,16 +197,17 @@ export function DataAgent() {
           </DialogHeader>
           <div className="space-y-4">
             <Input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Property name" />
-            <select
-              value={draft.category}
-              onChange={(event) => setDraft((current) => ({ ...current, category: event.target.value }))}
-              className="flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm"
-            >
-              <option value="Research">Research</option>
-              <option value="Clean">Clean</option>
-              <option value="Summarize">Summarize</option>
-              <option value="Enrich">Enrich</option>
-            </select>
+            <Select value={draft.category} onValueChange={(value) => setDraft((current) => ({ ...current, category: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Research">Research</SelectItem>
+                <SelectItem value="Clean">Clean</SelectItem>
+                <SelectItem value="Summarize">Summarize</SelectItem>
+                <SelectItem value="Enrich">Enrich</SelectItem>
+              </SelectContent>
+            </Select>
             <Textarea value={draft.prompt} onChange={(event) => setDraft((current) => ({ ...current, prompt: event.target.value }))} placeholder="Describe what the agent should do with the data" />
           </div>
           <DialogFooter>

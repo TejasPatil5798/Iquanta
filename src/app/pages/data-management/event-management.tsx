@@ -1,83 +1,159 @@
-import React from 'react';
-import { 
-  ChevronDown, 
-  ExternalLink,
-  Play,
-  LineChart
-} from 'lucide-react';
+import React, { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../components/ui/dialog";
+import { Input } from "../../components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
+import { ChevronDown, Plus } from "lucide-react";
+import { managedEvents, type ManagedEvent } from "../data-management-data";
 
 export function EventManagement() {
+  const [events, setEvents] = useState<ManagedEvent[]>(managedEvents);
+  const [isOpen, setIsOpen] = useState(false);
+  const [status, setStatus] = useState("All");
+  const [draft, setDraft] = useState({ name: "", source: "", owner: "" });
+
+  const filteredEvents = useMemo(() => events.filter((event) => status === "All" || event.status === status), [events, status]);
+
+  const createEvent = () => {
+    if (!draft.name.trim() || !draft.source.trim() || !draft.owner.trim()) {
+      toast.error("Name, source, and owner are required");
+      return;
+    }
+
+    setEvents((current) => [
+      {
+        id: `evt-${Date.now()}`,
+        name: draft.name.trim(),
+        source: draft.source.trim(),
+        owner: draft.owner.trim(),
+        status: "Draft",
+        volume: "Not collecting",
+        lastSeen: "-",
+      },
+      ...current,
+    ]);
+    setDraft({ name: "", source: "", owner: "" });
+    setIsOpen(false);
+    toast.success("Event created");
+  };
+
+  const toggleStatus = (eventId: string) => {
+    setEvents((current) =>
+      current.map((event) =>
+        event.id === eventId
+          ? {
+              ...event,
+              status: event.status === "Live" ? "Paused" : "Live",
+              lastSeen: event.status === "Live" ? "Paused now" : "Just now",
+            }
+          : event,
+      ),
+    );
+    toast.success("Event status updated");
+  };
+
   return (
-    <div className="min-h-screen bg-white font-sans text-[#33475b]">
-      
-      {/* Header */}
-      <header className="border-b border-[#eaf0f6] px-8 py-4 flex justify-between items-center sticky top-0 bg-white z-10">
-        <h1 className="text-2xl font-bold text-[#2d3e50]">
-          Event management
-        </h1>
-
-        <button className="bg-[#2d3e50] text-white px-4 py-2 rounded-sm text-sm font-bold flex items-center">
-          Create an event
-          <ChevronDown size={16} className="ml-2" />
-        </button>
-      </header>
-
-      {/* Main */}
-      <main className="max-w-6xl mx-auto px-8 py-20">
-        <div className="flex flex-col md:flex-row items-center justify-center gap-12">
-
-          {/* Left Content */}
-          <div className="max-w-md">
-            <h2 className="text-3xl font-bold mb-6 leading-tight">
-              Track the activity that matters most to your business.
-            </h2>
-
-            <p className="text-gray-500 mb-8">
-              Create custom events to track user interactions and analyze performance
-              across your tools.
-            </p>
-
-            <div>
-              <p className="text-sm text-gray-500 mb-2">
-                New to custom events?
-              </p>
-
-              <a
-                href="#"
-                className="text-blue-600 font-semibold flex items-center"
-              >
-                View guide
-                <ExternalLink size={14} className="ml-1" />
-              </a>
-            </div>
+    <div className="min-h-screen bg-slate-50 p-6">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="flex flex-col gap-4 rounded-3xl border bg-white p-6 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-semibold text-slate-900">Event management</h1>
+            <p className="text-sm text-slate-600">Define custom events, monitor collection health, and activate live tracking from one admin surface.</p>
           </div>
-
-          {/* Illustration */}
-          <div className="relative w-full max-w-sm">
-
-            {/* Screen */}
-            <div className="bg-white border-2 rounded-xl h-44 flex items-center justify-center shadow rotate-[-6deg]">
-              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
-                <Play size={28} className="text-blue-500 ml-1" />
-              </div>
-            </div>
-
-            {/* Chart */}
-            <div className="absolute bottom-[-20px] right-0 bg-white border rounded-lg w-40 h-28 p-3 shadow rotate-3">
-              <div className="flex items-end gap-1 h-full">
-                <div className="w-2 bg-orange-400 h-1/3 rounded"></div>
-                <div className="w-2 bg-orange-400 h-1/2 rounded"></div>
-                <div className="w-2 bg-orange-400 h-4/5 rounded"></div>
-                <div className="w-2 bg-orange-400 h-2/5 rounded"></div>
-              </div>
-
-              <LineChart className="absolute inset-0 text-blue-500 opacity-70" />
-            </div>
-
-          </div>
-
+          <Button onClick={() => setIsOpen(true)}>
+            Create an event
+            <ChevronDown className="size-4" />
+          </Button>
         </div>
-      </main>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            { label: "Total events", value: events.length },
+            { label: "Live", value: events.filter((item) => item.status === "Live").length },
+            { label: "Draft", value: events.filter((item) => item.status === "Draft").length },
+          ].map((item) => (
+            <Card key={item.label}>
+              <CardContent className="p-5">
+                <div className="text-3xl font-semibold text-slate-900">{item.value}</div>
+                <div className="text-sm text-slate-600">{item.label}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Event catalog</CardTitle>
+            <CardDescription>Track event definitions and toggle live collection without leaving the page.</CardDescription>
+            <select value={status} onChange={(event) => setStatus(event.target.value)} className="h-9 max-w-48 rounded-md border border-slate-200 bg-white px-3 text-sm">
+              <option value="All">All statuses</option>
+              <option value="Live">Live</option>
+              <option value="Draft">Draft</option>
+              <option value="Paused">Paused</option>
+            </select>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Event</TableHead>
+                  <TableHead>Source</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Volume</TableHead>
+                  <TableHead>Last seen</TableHead>
+                  <TableHead>Owner</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredEvents.map((event) => (
+                  <TableRow key={event.id}>
+                    <TableCell className="font-medium text-slate-900">{event.name}</TableCell>
+                    <TableCell>{event.source}</TableCell>
+                    <TableCell>
+                      <Badge variant={event.status === "Live" ? "secondary" : event.status === "Draft" ? "outline" : "destructive"}>
+                        {event.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{event.volume}</TableCell>
+                    <TableCell>{event.lastSeen}</TableCell>
+                    <TableCell>{event.owner}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm" onClick={() => toggleStatus(event.id)}>
+                        {event.status === "Live" ? "Pause" : "Go live"}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create an event</DialogTitle>
+            <DialogDescription>Add a tracked event definition before routing it to analytics or automation.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Event name" />
+            <Input value={draft.source} onChange={(event) => setDraft((current) => ({ ...current, source: event.target.value }))} placeholder="Source application" />
+            <Input value={draft.owner} onChange={(event) => setDraft((current) => ({ ...current, owner: event.target.value }))} placeholder="Owner team" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button onClick={createEvent}>
+              <Plus className="size-4" />
+              Create event
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

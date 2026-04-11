@@ -1,158 +1,155 @@
-import React from 'react';
-import { 
-  Search, 
-  Plus, 
-  Filter, 
-  Download, 
-  Share2, 
-  ChevronDown, 
-  Sparkles,
-  Table as TableIcon,
-  LayoutDashboard,
-  ArrowUpRight,
-  Zap,
-  Lock
-} from 'lucide-react';
+import React, { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../components/ui/dialog";
+import { Input } from "../../components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
+import { Textarea } from "../../components/ui/textarea";
+import { Database, Plus, Search, Share2 } from "lucide-react";
+import { studioDatasets, type StudioDataset } from "../data-management-data";
 
 export function DataStudio() {
+  const [datasets, setDatasets] = useState<StudioDataset[]>(studioDatasets);
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("All");
+  const [isOpen, setIsOpen] = useState(false);
+  const [draft, setDraft] = useState({ name: "", source: "", notes: "" });
+
+  const filteredDatasets = useMemo(() => {
+    return datasets.filter((dataset) => {
+      const matchesQuery = `${dataset.name} ${dataset.source} ${dataset.owner}`.toLowerCase().includes(query.toLowerCase());
+      const matchesStatus = status === "All" || dataset.status === status;
+      return matchesQuery && matchesStatus;
+    });
+  }, [datasets, query, status]);
+
+  const createDataset = () => {
+    if (!draft.name.trim() || !draft.source.trim()) {
+      toast.error("Dataset name and source are required");
+      return;
+    }
+    const newDataset: StudioDataset = {
+      id: `ds-${Date.now()}`,
+      name: draft.name.trim(),
+      source: draft.source.trim(),
+      status: "Draft",
+      rows: "0",
+      owner: "You",
+      updatedAt: "Just now",
+    };
+    setDatasets((current) => [newDataset, ...current]);
+    setDraft({ name: "", source: "", notes: "" });
+    setIsOpen(false);
+    toast.success("Dataset created");
+  };
+
   return (
-    <div className="min-h-screen bg-[#f5f8fa] font-sans text-[#33475b]">
-      
-      {/* Header */}
-      <header className="bg-white border-b px-8 py-4 flex justify-between items-center">
-        <div>
-          <h1 className="text-xl font-bold text-[#2d3e50]">Data studio</h1>
-          <p className="text-xs text-[#516f90]">
-            Combine and analyze your data in one place.
-          </p>
-        </div>
-
-        <div className="flex items-center space-x-3">
-          <Share2 size={20} className="text-[#516f90]" />
-          <button className="bg-[#ff7a59] text-white px-4 py-2 rounded-sm text-sm font-bold flex items-center">
-            <Plus size={16} className="mr-2" />
-            Create dataset
-          </button>
-        </div>
-      </header>
-
-      {/* Toolbar */}
-      <div className="bg-white border-b px-8 py-2 flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-500">View:</span>
-          <button className="text-sm font-bold text-[#00a4bd] flex items-center">
-            All datasets <ChevronDown size={14} className="ml-1" />
-          </button>
-
-          <div className="relative">
-            <Search
-              size={14}
-              className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500"
-            />
-            <input
-              placeholder="Search datasets"
-              className="pl-7 pr-3 py-1 border rounded-sm text-sm w-64"
-            />
+    <div className="min-h-screen bg-slate-50 p-6">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="flex flex-col gap-4 rounded-3xl border bg-white p-6 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-semibold text-slate-900">Data studio</h1>
+            <p className="text-sm text-slate-600">Create shared datasets, monitor publish status, and keep blended sources discoverable.</p>
           </div>
-        </div>
-
-        <div className="flex space-x-2">
-          <button className="border px-3 py-1 text-xs rounded flex items-center">
-            <Filter size={14} className="mr-1" /> Filter
-          </button>
-          <button className="border px-3 py-1 text-xs rounded flex items-center">
-            <Download size={14} className="mr-1" /> Export
-          </button>
-        </div>
-      </div>
-
-      <main className="max-w-7xl mx-auto p-8 space-y-10">
-
-        {/* Empty State */}
-        <div className="bg-white border rounded-sm p-10 text-center shadow-sm">
-          <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <TableIcon size={40} className="text-blue-500" />
-          </div>
-
-          <h2 className="text-2xl font-bold mb-3">
-            Unify your data with Data Studio
-          </h2>
-
-          <p className="text-gray-500 mb-6 max-w-xl mx-auto">
-            Blend multiple data sources into one powerful dataset for insights and automation.
-          </p>
-
-          <div className="flex justify-center gap-4">
-            <button className="bg-black text-white px-6 py-2 rounded">
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => toast.message("Workspace share panel opened")}>
+              <Share2 className="size-4" />
+              Share
+            </Button>
+            <Button onClick={() => setIsOpen(true)}>
+              <Plus className="size-4" />
               Create dataset
-            </button>
-            <button className="border px-6 py-2 rounded flex items-center">
-              Explore <ArrowUpRight size={16} className="ml-2" />
-            </button>
+            </Button>
           </div>
         </div>
 
-        {/* Features */}
-        <div className="grid md:grid-cols-3 gap-6">
-          <Feature
-            icon={<LayoutDashboard className="text-blue-500" />}
-            title="Easy interface"
-            desc="Work in a spreadsheet-like UI."
-          />
-          <Feature
-            icon={<Sparkles className="text-purple-500" />}
-            title="AI insights"
-            desc="Discover patterns automatically."
-          />
-          <Feature
-            icon={<Zap className="text-orange-500" />}
-            title="Integrations"
-            desc="Connect data across systems."
-          />
-        </div>
-
-        {/* Upgrade Banner */}
-        <div className="bg-gray-900 text-white rounded p-6 flex justify-between items-center">
-          <div>
-            <div className="flex items-center text-orange-400 text-xs mb-2">
-              <Lock size={14} className="mr-1" />
-              PRO FEATURE
+        <Card>
+          <CardHeader>
+            <CardTitle>Dataset library</CardTitle>
+            <CardDescription>Search and filter datasets by owner, source, or publish state.</CardDescription>
+            <div className="flex flex-col gap-3 md:flex-row">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search datasets" className="pl-9" />
+              </div>
+              <select value={status} onChange={(event) => setStatus(event.target.value)} className="h-9 rounded-md border border-slate-200 bg-white px-3 text-sm">
+                <option value="All">All statuses</option>
+                <option value="Draft">Draft</option>
+                <option value="Published">Published</option>
+                <option value="Syncing">Syncing</option>
+              </select>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-3">
+              {[
+                { label: "Datasets", value: datasets.length },
+                { label: "Published", value: datasets.filter((item) => item.status === "Published").length },
+                { label: "Syncing", value: datasets.filter((item) => item.status === "Syncing").length },
+              ].map((item) => (
+                <div key={item.label} className="rounded-2xl bg-slate-50 p-4">
+                  <div className="text-3xl font-semibold text-slate-900">{item.value}</div>
+                  <div className="text-sm text-slate-600">{item.label}</div>
+                </div>
+              ))}
             </div>
 
-            <h3 className="text-xl font-bold mb-1">
-              Unlock advanced data blending
-            </h3>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Source</TableHead>
+                  <TableHead>Rows</TableHead>
+                  <TableHead>Owner</TableHead>
+                  <TableHead>Updated</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredDatasets.map((dataset) => (
+                  <TableRow key={dataset.id}>
+                    <TableCell className="font-medium text-slate-900">
+                      <div className="flex items-center gap-2">
+                        <Database className="size-4 text-cyan-600" />
+                        {dataset.name}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={dataset.status === "Published" ? "secondary" : dataset.status === "Syncing" ? "default" : "outline"} className={dataset.status === "Syncing" ? "bg-cyan-600 text-white" : ""}>
+                        {dataset.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{dataset.source}</TableCell>
+                    <TableCell>{dataset.rows}</TableCell>
+                    <TableCell>{dataset.owner}</TableCell>
+                    <TableCell>{dataset.updatedAt}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
 
-            <p className="text-sm text-gray-300">
-              Upgrade to access advanced analytics and AI features.
-            </p>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create dataset</DialogTitle>
+            <DialogDescription>Register a new blended dataset for your workspace.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Dataset name" />
+            <Input value={draft.source} onChange={(event) => setDraft((current) => ({ ...current, source: event.target.value }))} placeholder="Primary sources" />
+            <Textarea value={draft.notes} onChange={(event) => setDraft((current) => ({ ...current, notes: event.target.value }))} placeholder="Optional notes or intended use" />
           </div>
-
-          <button className="bg-orange-500 px-6 py-2 rounded text-sm font-bold">
-            Upgrade
-          </button>
-        </div>
-
-      </main>
-    </div>
-  );
-}
-
-/* Reusable Feature Component */
-function Feature({
-  icon,
-  title,
-  desc
-}: {
-  icon: React.ReactNode;
-  title: string;
-  desc: string;
-}) {
-  return (
-    <div className="bg-white border rounded-sm p-5">
-      <div className="mb-3">{icon}</div>
-      <h3 className="font-bold mb-1">{title}</h3>
-      <p className="text-sm text-gray-500">{desc}</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button onClick={createDataset}>Create</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
